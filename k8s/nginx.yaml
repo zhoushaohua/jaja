@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat-deployment
+  labels:
+    app: tomcat
+spec:
+  replicas: 12
+  selector:
+    matchLabels:
+      app: tomcat
+  template:
+    metadata:
+      labels:
+        app: tomcat
+    spec:
+      containers:
+      - name: tomcat
+        image: 172.16.108.100/jxbank/tomcat:latest
+        ports:
+        - containerPort: 8080
+
+
+映射端口至节点服务器
+kubectl expose deployment tomcat-deployment --port=8080 --type=LoadBalancer

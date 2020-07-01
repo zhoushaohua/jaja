@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Oracle11g R2 RAC 安装配置最佳实践.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="oracle11g-r2-rac-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">Oracle11g R2 rac 安装配置最佳实践</h1>
+<ul>
+<li><a href="#oracle11g-r2-rac-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">Oracle11g R2 rac 安装配置最佳实践</a>
+<ul>
+<li><a href="#%E7%AC%AC%E4%B8%80%E7%AB%A0-%E9%83%A8%E7%BD%B2%E5%89%8D%E8%A7%84%E5%88%92">第一章  部署前规划</a>
+<ul>
+<li><a href="#11-%E7%8E%AF%E5%A2%83%E8%A7%84%E5%88%92">1.1  环境规划</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%B0%83%E6%95%B4">第二章  操作系统调整</a>
+<ul>
+<li><a href="#21-%E7%B3%BB%E7%BB%9F%E5%9F%BA%E6%9C%AC%E6%A3%80%E6%9F%A5%E5%92%8C%E8%B0%83%E6%95%B4">2.1 系统基本检查和调整</a></li>
+<li><a href="#22-%E5%85%B3%E9%97%AD%E4%B8%8D%E5%BF%85%E7%9A%84%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1">2.2 关闭不必的系统服务</a></li>
+<li><a href="#23-%E4%BF%AE%E6%94%B9-host-%E6%96%87%E4%BB%B6">2.3 修改 HOST 文件</a></li>
+<li><a href="#24-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E5%8C%85">2.4 安装必要包</a>
+<ul>
+<li><a href="#241-yum-%E9%85%8D%E7%BD%AE">2.4.1 yum 配置</a></li>
+<li><a href="#242-%E9%80%9A%E8%BF%87-yum-%E6%A3%80%E6%9F%A5%E5%BF%85%E8%A6%81%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E6%83%85%E5%86%B5">2.4.2  通过 yum 检查必要包的安装情况</a></li>
+<li><a href="#243-%E9%80%9A%E8%BF%87-yum-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E5%8C%85">2.4.3 通过 yum 安装必要包</a></li>
+</ul>
+</li>
+<li><a href="#25-%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">2.5 内核参数调整</a></li>
+<li><a href="#26-%E5%85%B3%E9%97%AD%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-transparent-huge-pages%E5%8F%8Anuma">2.6 关闭操作系统 Transparent Huge Pages及numa</a></li>
+<li><a href="#27-%E8%A7%A3%E5%86%B3-packet-reassembles-failure-%E9%97%AE%E9%A2%98">2.7 解决 packet reassembles failure 问题</a></li>
+<li><a href="#28-%E6%97%B6%E9%97%B4%E5%92%8C%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5">2.8 时间和时间同步</a></li>
+<li><a href="#29-%E7%BD%91%E7%BB%9C%E6%A3%80%E6%9F%A5%E5%92%8C%E8%AE%BE%E7%BD%AE">2.9  网络检查和设置</a></li>
+<li><a href="#291-%E7%BD%91%E5%8D%A1%E7%BB%91%E5%AE%9A">2.9.1 网卡绑定</a></li>
+<li><a href="#210-%E5%AD%98%E5%82%A8%E5%A4%9A%E8%B7%AF%E5%BE%84%E5%92%8C-asmlib">2.10 存储多路径和 ASMLIB</a>
+<ul>
+<li><a href="#2101-%E5%AD%98%E5%82%A8%E5%A4%9A%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE">2.10.1 存储多路径设置</a></li>
+<li><a href="#2102-asmlib">2.10.2 ASMLIB</a></li>
+</ul>
+</li>
+<li><a href="#211-%E7%94%A8%E6%88%B7%E5%8F%8A-limits-%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE">2.11 用户及 limits 和环境变量设置</a>
+<ul>
+<li><a href="#2111-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E7%94%A8%E6%88%B7%E7%BB%84%E4%BB%A5%E5%8F%8A%E7%9B%AE%E5%BD%95">2.11.1 创建用户、用户组以及目录</a></li>
+<li><a href="#2112-limits-%E8%AE%BE%E7%BD%AE">2.11.2 limits 设置</a></li>
+<li><a href="#2113-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE">2.11.3 环境变量设置</a></li>
+<li><a href="#2114-%E5%A4%A7%E5%86%85%E5%AD%98%E9%A1%B5%E8%AE%BE%E7%BD%AE">2.11.4 大内存页设置</a></li>
+</ul>
+</li>
+<li><a href="#212-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">2.12 数据库参数调整</a></li>
+<li><a href="#213-asm-au-%E5%A4%A7%E5%B0%8F">2.13 ASM AU 大小</a></li>
+<li><a href="#214-asm-%E5%8F%82%E6%95%B0%E6%A3%80%E6%9F%A5%E5%92%8C%E8%B0%83%E6%95%B4">2.14 ASM 参数检查和调整</a></li>
+<li><a href="#215-chm-%E8%B0%83%E6%95%B4">2.15 CHM 调整</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">第三章  数据库参数调整</a>
+<ul>
+<li><a href="#31%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE">3.1数据库参数设置</a></li>
+<li><a href="#32-crs-%E8%B5%84%E6%BA%90%E5%B1%9E%E6%80%A7%E8%B0%83%E6%95%B4">3.2 CRS 资源属性调整</a></li>
+<li><a href="#33-%E6%97%B6%E9%97%B4%E7%AA%97%E5%8F%A3%E8%AE%BE%E7%BD%AE">3.3 时间窗口设置</a></li>
+<li><a href="#34-%E7%A6%81%E7%94%A8%E4%B8%8D%E5%BF%85%E8%A6%81%E7%9A%84job">3.4 禁用不必要的job</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC%E4%BA%94%E7%AB%A0-%E9%99%84%E5%BD%95%E9%83%A8%E5%88%86%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%A7%A3%E9%87%8A%E8%AF%B4%E6%98%8E">第五章  附录(部分数据库参数解释说明)</a>
+<ul>
+<li><a href="#51-%E9%92%88%E5%AF%B9-rac-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">5.1  针对 RAC 数据库的参数调整</a></li>
+<li><a href="#52-segmentextent-%E7%9B%B8%E5%85%B3">5.2.  segment\extent 相关</a></li>
+<li><a href="#53-event">5.3  Event</a></li>
+<li><a href="#54-resource">5.4.  resource</a></li>
+<li><a href="#55-undo">5.5  undo</a></li>
+<li><a href="#56-%E5%AE%A1%E8%AE%A1">5.6  审计</a></li>
+<li><a href="#57-%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3">5.7  内存相关</a></li>
+<li><a href="#58-%E5%90%8E%E5%8F%B0%E8%BF%9B%E7%A8%8B">5.8  后台进程</a></li>
+<li><a href="#59-%E5%AE%89%E5%85%A8">5.9  安全</a></li>
+<li><a href="#510-%E5%85%B6%E4%BB%96">5.10  其他</a></li>
+<li><a href="#511-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1">5.11 定时任务</a></li>
+<li><a href="#512-auto-sql-tuning">5.12 auto sql tuning</a></li>
+<li><a href="#513-%E8%B0%83%E6%95%B4%E6%97%B6%E9%97%B4%E7%AA%97%E5%8F%A3">5.13  调整时间窗口</a></li>
+<li><a href="#514-%E5%8F%AF%E9%80%89">5.14 可选</a>
+<ul>
+<li><a href="#5141-io">5.14.1  IO</a></li>
+<li><a href="#5142-%E5%86%85%E5%AD%98">5.14.2  内存</a></li>
+<li><a href="#5143-cursor">5.14.3  cursor</a></li>
+<li><a href="#5144-%E6%80%A7%E8%83%BD%E7%9B%B8%E5%85%B3">5.14.4  性能相关</a></li>
+<li><a href="#5145-dblink">5.14.5  dblink</a></li>
+<li><a href="#5146-%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6">5.14.6.  数据文件</a></li>
+<li><a href="#5147-%E6%8E%A7%E5%88%B6%E6%96%87%E4%BB%B6">5.14.7  控制文件</a></li>
+<li><a href="#5148-shared-servers">5.14.8  shared servers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E7%AC%AC%E4%B8%80%E7%AB%A0-%E9%83%A8%E7%BD%B2%E5%89%8D%E8%A7%84%E5%88%92">第一章  部署前规划</h2>
+<pre><code>在部署系统之前，需要对存储和网络这两方面进行规划。下面分别描述了存储和网络进行规划时，需要注意的地方。
+</code></pre>
+<h3 id="11-%E7%8E%AF%E5%A2%83%E8%A7%84%E5%88%92">1.1  环境规划</h3>
+<p>1）  Oracle RAC 数据库节点间通信网络需要使用单独的交换机</p>
+<p>2）  对于 PC 化的 Oracle RAC 数据库来说，节点间通信网络建议使用 10GE（万兆）网络，但至少要达到 1GE（千兆）带宽的网络</p>
+<p>3）  对 PC 服务器来说，网卡是容易出现故障的部件，因此强烈建议对 public network和 private network 上的网卡都进行多网卡绑定。对于虚拟化系统，可以在宿主机的ESXi Server 上对网卡进行绑定，此种方式下的绑定建议使用主/备(Active/Passive)模式；也可以在虚拟机内部使用操作系统的网卡绑定，建议使用主备模式</p>
+<p>4）  如果使用 Oracle 11gR2 RAC 数据库的多网卡 HAIP 特性，同一节点上用于节点间通信的多个网卡之间的 IP 地址不能在同一个子网中，而节点之间相同名称网卡对应的 IP地址需要在同一个子网中</p>
+<p>5）  如果企业 IT 基础设施中使用了 DNS，则根据规划的主机名和 IP 地址，在 DNS 上做好设置，同时在此种环境下，SCAN 对应的 SCAN IP 地址建议设置为 3 个</p>
+<p>6）  主机名不能含有下划线'_'，可以使用中划线'-'</p>
+<p>7）  节点间通信网络的交换机需要开启多播或广播</p>
+<p>8）  在虚拟化平台上，Oracle 数据库的备份不能使用传统的 SAN 网络，只能通过以太网进行备份，为了减少备份恢复时间，对网络带宽有较高的要求，建议在 10GE 或以上，有条件可以设备单独的备份数据用网络，以免占用生产网络带宽</p>
+<h2 id="%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%B0%83%E6%95%B4">第二章  操作系统调整</h2>
+<p>在操作系统安装完成后，还需要进行多项调整。以下是 Red Hat Enterprise Linux Server release 6.4（内核版本为 2.6.32-358.el6.x86_64）为例进行说明。</p>
+<h3 id="21-%E7%B3%BB%E7%BB%9F%E5%9F%BA%E6%9C%AC%E6%A3%80%E6%9F%A5%E5%92%8C%E8%B0%83%E6%95%B4">2.1 系统基本检查和调整</h3>
+<p>以下项目需要进行检查，检查不符合的需要进行调整：</p>
+<p>1).  用 uname –r 命令检查是否是 x86_64 位系统</p>
+<p>2).  确认交换空间大小：当物理内存在 16GB 以内时，交换空间（swap）的大小应该与物理内存相等，当物理内存大于 16GB 时，交换空间的大小在 16GB 或以上</p>
+<p>3).  检查/tmp 空间的大小，至少在 1GB 以上</p>
+<p>4).  关闭 SELinux：修改/etc/selinux/config 文件，将 SELINUX=后面的值改为 disabled。这一改动需要重启操作系统才生效。 或则使用下列命令进行修改</p>
+<pre class="hljs"><code><div>cp /etc/selinux/config /etc/selinux/config_`date +<span class="hljs-string">"%Y%m%d_%H%M%S"</span>`&amp;&amp; sed -i <span class="hljs-string">'s/SELINUX\=enforcing/SELINUX\=disabled/g'</span> /etc/selinux/config
+</div></code></pre>
+<p>5).  确认并关闭系统上的防火墙</p>
+<pre class="hljs"><code><div>
+chkconfig iptables off
+chkconfig ip6tables off
+service iptables stop
+service ip6tables stop
+</div></code></pre>
+<h3 id="22-%E5%85%B3%E9%97%AD%E4%B8%8D%E5%BF%85%E7%9A%84%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1">2.2 关闭不必的系统服务</h3>
+<p>RHEL 6.x 操作系统做为一个用途广泛的服务器操作系统，其自带了大量的系统服务，这些系统服务为硬件设备、安全、性能、系统诊断等各方面提供了相应的机制和功能。但某些缺省运行的系统服务会有如下的问题：</p>
+<p>1).  过多占用系统资源</p>
+<p>2).  一些安全相关的系统服务可能会使数据库运行不正常或异常故障，比如 iptables服务。</p>
+<p>3).  一些系统诊断相关的系统服务可能影响数据库的性能，比如 trace-cmd 服务</p>
+<p>4).  一些性能或节能相关的系统服务，可能会使操作系统和数据库运行不稳定，比如cpuspeed 服务。 以下是实际核心生产系统上为开启状态的系统服务列表</p>
+<pre class="hljs"><code><div>[oracle@crmadb1 ~]$ chkconfig | grep 3:on
+autofs          0:off   1:off   2:off   3:on    4:on    5:on    6:off
+crond           0:off   1:off   2:on    3:on    4:on    5:on    6:off
+haldaemon       0:off   1:off   2:off   3:on    4:on    5:on    6:off
+irqbalance      0:off   1:off   2:off   3:on    4:on    5:on    6:off
+lvm2-monitor    0:off   1:on    2:on    3:on    4:on    5:on    6:off
+mcelogd         0:off   1:off   2:off   3:on    4:off   5:on    6:off
+messagebus      0:off   1:off   2:on    3:on    4:on    5:on    6:off
+netfs           0:off   1:off   2:off   3:on    4:on    5:on    6:off
+network         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+nfslock         0:off   1:off   2:off   3:on    4:on    5:on    6:off
+ntpd            0:off   1:off   2:on    3:on    4:on    5:on    6:off
+oracleasm       0:off   1:off   2:on    3:on    4:on    5:on    6:off
+oswbb           0:off   1:off   2:on    3:on    4:on    5:on    6:off
+rpcbind         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+rsyslog         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+sshd            0:off   1:off   2:on    3:on    4:on    5:on    6:off
+sysstat         0:off   1:on    2:on    3:on    4:on    5:on    6:off
+udev-post       0:off   1:on    2:on    3:on    4:on    5:on    6:off
+xinetd          0:off   1:off   2:off   3:on    4:on    5:on    6:off
+</div></code></pre>
+<p>提示：
+1 上述开启的服务中，oracleasm 和 oswbb 是 Oracle 数据库安装后运行的服务，不是系统自带的服务
+2 一些功能需要有相应的服务支持，对于直接使用物理服务器运行 Oracle，可能需要运行多路径服务 multipathd，如果在虚拟化环境下使用 iscsi 来访问后端存储，那就需要相应的系统服务
+3 如何保持系统服务最小化，建议也咨询 Linux 系统管理员
+4 即便不是最小化服务方式配置 Linux，下面一些系统服务仍然强烈建议关闭：NetworkManager、auditd、trace-cmd、cpuspeed、iptables、ip6tables、rhsmcertd
+5 必须关闭 avahi-daemon 服务（如果在系统中存在），同时确保在/etc/sysconfig/network 文件中有如下行：NOZEROCONF=yes</p>
+<p>关闭服务参考：</p>
+<pre class="hljs"><code><div>chkconfig --level 2345 iptables off
+chkconfig --level 2345 rhnsd off
+chkconfig --level 2345 isdn off
+chkconfig --level 2345 avahi-daemon off
+chkconfig --level 2345 avahi-dnsconfd off
+chkconfig --level 2345 bluetooth off
+chkconfig --level 2345 hcid off
+chkconfig --level 2345 capi off
+chkconfig --level 2345 hidd off
+chkconfig --level 2345 irqbalance off
+chkconfig --level 2345 mcstrans off
+chkconfig --level 2345 pcscd off
+chkconfig --level 2345 gpm off
+chkconfig --level 2345 portmap off
+chkconfig --level 2345 rpcgssd off
+chkconfig --level 2345 rpcidmapd off
+chkconfig --level 2345 rpcsvcgssd off
+chkconfig --level 2345 portmap off
+chkconfig --level 2345 sendmail off
+chkconfig --level 2345 xend off
+chkconfig --level 2345 cups off
+chkconfig --level 2345 iptables off
+chkconfig --level 2345 ip6tables off
+chkconfig --level 2345 blk-availability off
+chkconfig --level 2345 abrt-ccpp off
+chkconfig --level 2345 abrtd off
+chkconfig --level 2345 certmonger  off
+chkconfig --level 2345 cpuspeed off
+chkconfig --level 2345 irqbalance off
+chkconfig --level 2345 trace-cmd off
+chkconfig --level 2345 NetworkManager off
+chkconfig --level 2345 yum-updatesd off
+chkconfig --level 2345 xfs off
+chkconfig --level 2345 rawdevices off
+chkconfig --level 2345 iscsid off
+chkconfig --level 2345 acpid off
+chkconfig --level 2345 auditd off
+chkconfig --level 2345 firstboot off
+chkconfig --level 2345 haldaemon off
+chkconfig --level 2345 microcode_ctl off
+chkconfig --level 2345 restorecond off
+chkconfig --level 2345 setroubleshoot off
+chkconfig --level 2345 lvm2-monitor off
+chkconfig --level 2345 mdmonitor off
+</div></code></pre>
+<h3 id="23-%E4%BF%AE%E6%94%B9-host-%E6%96%87%E4%BB%B6">2.3 修改 HOST 文件</h3>
+<p>修改/etc/hosts 文件</p>
+<pre class="hljs"><code><div>cp /etc/hosts /etc/hosts_`date +<span class="hljs-string">"%Y%m%d_%H%M%S"</span>`
+</div></code></pre>
+<p>修改 HOSTS 文件，需要确定 localhosts 解析后面不要带主机名，本机的 IP 地址与主机名解析在 HOSTS 文件中。</p>
+<pre class="hljs"><code><div><span class="hljs-built_in">echo</span> <span class="hljs-string">"HOSTNAME=******"</span>&gt;&gt;/etc/sysconfig/network
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"NOZEROCONF=yes"</span>&gt;&gt;/etc/sysconfig/network
+</div></code></pre>
+<h3 id="24-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E5%8C%85">2.4 安装必要包</h3>
+<p>Yum 是 yellowdog  updater  modified 的缩写。yum  的理念是使用一个中心仓库(repository)管理一部分甚至一个 distribution 的应用程序相互关系，根据计算出来的软件依赖关系进行相关的升级、安装、删除等等操作，减少了  Linux 用户一直头痛的 dependencies 的问题。</p>
+<h4 id="241-yum-%E9%85%8D%E7%BD%AE">2.4.1 yum 配置</h4>
+<pre class="hljs"><code><div>[RHEL66]
+name = Enterprise Linux 6.6 DVD
+baseurl=file:///media/Server/
+gpgcheck=0
+enabled=1
+</div></code></pre>
+<h4 id="242-%E9%80%9A%E8%BF%87-yum-%E6%A3%80%E6%9F%A5%E5%BF%85%E8%A6%81%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E6%83%85%E5%86%B5">2.4.2  通过 yum 检查必要包的安装情况</h4>
+<p>通过以下命令来查看必要的包是否安装</p>
+<pre class="hljs"><code><div>rpm -q --qf <span class="hljs-string">'%{NAME}-%{VERSION}-%{RELEASE} (%{ARCH})\n'</span> \
+binutils \
+compat-libcap1 \
+compat-libstdc++-33 \
+gcc \
+gcc-c++  \
+glibc \
+glibc-devel \
+ksh \
+libstdc++ \
+libstdc++-devel \
+libaio \
+libaio-devel \
+make \
+sysstat
+</div></code></pre>
+<h4 id="243-%E9%80%9A%E8%BF%87-yum-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E5%8C%85">2.4.3 通过 yum 安装必要包</h4>
+<p>通过以下命令来安装必要包（也可以根据 2.3.2 中的结果只安装未安装的包</p>
+<pre class="hljs"><code><div>yum -y install binutils compat-libstdc++-33 gcc gcc-c++ glibc glibc-common  glibc-devel ksh libaio libaio-devel libgcc libstdc++ libstdc++-devel make sysstat openssh-clients compat-libcap1   xorg-x11-utils xorg-x11-xauth elfutils unixODBC unixODBC-devel libXp elfutils-libelf elfutils-libelf-devel smartmontools
+</div></code></pre>
+<p>如果是 10g，还需要安装以下包</p>
+<pre class="hljs"><code><div>yum -y install  libXt
+</div></code></pre>
+<h3 id="25-%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">2.5 内核参数调整</h3>
+<p>在 Linux 下安装 Oracle 11gR2 数据库，需要调整内核参数到合适的值，以下列出了推荐的内核参数值。</p>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>参数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fs.file-max</td>
+<td>6815744</td>
+<td>-</td>
+</tr>
+<tr>
+<td>kernel.sem</td>
+<td>250 32000 100 128</td>
+<td>四个数字：第 1 个数字应约大于 Oracle 进程数，第 2 个数字建议是第 1 和第 4 个数字的乘积。这个参数能够满足大部分使用，但对于连接数较高（比如单节点 8000 个连接）可以设置为： 10000    1280000 512 1024</td>
+</tr>
+<tr>
+<td>kernel.shmmi</td>
+<td>4096</td>
+<td>-</td>
+</tr>
+<tr>
+<td>kernel.shmall</td>
+<td>1073741824</td>
+<td>-</td>
+</tr>
+<tr>
+<td>kernel.shmmax</td>
+<td>4398046511104</td>
+<td>-</td>
+</tr>
+<tr>
+<td>net.core.rmem_default</td>
+<td>262144</td>
+<td>-</td>
+</tr>
+<tr>
+<td>net.core.rmem_max</td>
+<td>4194304</td>
+<td>-</td>
+</tr>
+<tr>
+<td>net.core.wmem_default</td>
+<td>262144</td>
+<td>-</td>
+</tr>
+<tr>
+<td>net.core.wmem_max</td>
+<td>1048576</td>
+<td>-</td>
+</tr>
+<tr>
+<td>fs.aio-max-nr</td>
+<td>4194304</td>
+<td>-</td>
+</tr>
+<tr>
+<td>net.ipv4.ip_local_port_range</td>
+<td>9000 65500</td>
+<td>-</td>
+</tr>
+<tr>
+<td>vm.min_free_kbytes</td>
+<td>524288</td>
+<td>-</td>
+</tr>
+<tr>
+<td>vm.swappiness</td>
+<td>10</td>
+<td>-这个参数从 RHEL  6.4 开始与之前的版本的行为有所不同，建议不要设置为 0。</td>
+</tr>
+<tr>
+<td>vm.dirty_background_ratio</td>
+<td>3</td>
+<td>-</td>
+</tr>
+<tr>
+<td>vm.dirty_ratio</td>
+<td>20</td>
+<td>-</td>
+</tr>
+<tr>
+<td>vm.dirty_expire_centisecs</td>
+<td>500</td>
+<td>-</td>
+</tr>
+<tr>
+<td>vm.dirty_writeback_centisecs</td>
+<td>100</td>
+<td>-</td>
+</tr>
+<tr>
+<td>net.ipv4.conf.eth2.rp_filter</td>
+<td>2</td>
+<td>这个参数针对 RAC 的节点间互联网络设置，这里 eth2 是 private 网卡，如果是绑定的就需要用绑定的网卡名，如果是多个 private网卡，就需要对每个网卡都要设置</td>
+</tr>
+<tr>
+<td>vm.nr_hugepages</td>
+<td>-</td>
+<td>根据sga内存计算</td>
+</tr>
+</tbody>
+</table>
+<p>为方便操作，可以直接将下面的文本附加到/etc/sysctl.conf 文件中，然后执行 sysctl –p 命令使设置生效</p>
+<pre class="hljs"><code><div>fs.file-max = 6815744
+kernel.sem = 250 32000 100 128
+kernel.shmmni = 4096
+kernel.shmall = 1073741824
+kernel.shmmax = 4398046511104
+net.ipv4.ip_local_port_range = 9000 65500
+net.core.rmem_default = 262144
+net.core.wmem_default = 262144
+net.core.rmem_max = 4194304
+net.core.wmem_max = 1048576
+fs.aio-max-nr = 4194304
+vm.dirty_ratio=20
+vm.dirty_background_ratio=3
+vm.dirty_writeback_centisecs=100
+vm.dirty_expire_centisecs=500
+vm.swappiness=10
+vm.min_free_kbytes=524288
+<span class="hljs-comment">##需要根据 SGA 来计算</span>
+vm.nr_hugepages = 61188
+<span class="hljs-comment">#rp_filter，这里假设 eth2 和 eth3 都是私有网卡</span>
+net.ipv4.conf.eth2.rp_filter = 2
+net.ipv4.conf.eth3.rp_filter = 2
+<span class="hljs-comment">##oracle 12.1.0.2 后需要加入</span>
+kernel.panic_on_oops=1
+</div></code></pre>
+<h3 id="26-%E5%85%B3%E9%97%AD%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-transparent-huge-pages%E5%8F%8Anuma">2.6 关闭操作系统 Transparent Huge Pages及numa</h3>
+<p>根据 MOS 文档“Oracle Linux - Transparent Huge Pages (THP) and Memory Compaction Causing Processes to Unresponsive on UEK2 (文档 ID 1606759.1)”，需要关闭操作系统的 Transparent Huge Page 特性。 关闭这一特性的优先方法是修改/boot/grub/grub.conf 文件，在 kernel 行的后面加上&quot;transparent_hugepage=never&quot;</p>
+<pre class="hljs"><code><div>title Red Hat Enterprise Linux (2.6.32-358.el6.x86_64)
+    root (hd0,0)
+    kernel /vmlinuz-2.6.32-358.el6.x86_64 ro root=/dev/mapper/vg_xty64-lv_root rd_NO_LUKS LANG=en_US.UTF-8 rd_LVM_LV=vg_xty64/lv_root rd_NO_MD quiet SYSFONT=latarcyrheb-sun16 rhgb crashkernel=auto rd_NO_DM  KEYBOARDTYPE=pc KEYTABLE=us rd_LVM_LV=vg_xty64/lv_swap  transparent_hugepage=never numa=off elevator=deadline
+    initrd /initramfs-2.6.32-358.el6.x86_64.img
+</div></code></pre>
+<p>其他可选择的方法有：
+在/etc/rc.local 中加入下面的代码行</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">if</span> <span class="hljs-built_in">test</span> -f /sys/kernel/mm/transparent_hugepage/enabled;<span class="hljs-keyword">then</span>
+    <span class="hljs-built_in">echo</span> never &gt; /sys/kernel/mm/transparent_hugepage/enabled
+<span class="hljs-keyword">fi</span>
+<span class="hljs-keyword">if</span> <span class="hljs-built_in">test</span> -f /sys/kernel/mm/transparent_hugepage/defrag;<span class="hljs-keyword">then</span>
+    <span class="hljs-built_in">echo</span> never &gt; /sys/kernel/mm/transparent_hugepage/defrag
+<span class="hljs-keyword">fi</span>
+</div></code></pre>
+<p>在重启后，确认如下结果：</p>
+<pre class="hljs"><code><div>cat /sys/kernel/mm/transparent_hugepage/defrag
+always [never]
+cat /sys/kernel/mm/transparent_hugepage/enabled  
+always [never]
+</div></code></pre>
+<p>如果结果非预期，可能是由于 Linux 的 ktune 和 tuned 服务所导致。在此种情况下，建议关闭这两项服务：</p>
+<pre class="hljs"><code><div>service tuned stop
+chkconfig tuned off
+service ktune stop
+chkconfig ktune off
+</div></code></pre>
+<p>或者：</p>
+<pre class="hljs"><code><div>tuned-adm off
+</div></code></pre>
+<h3 id="27-%E8%A7%A3%E5%86%B3-packet-reassembles-failure-%E9%97%AE%E9%A2%98">2.7 解决 packet reassembles failure 问题</h3>
+<p>从 Linux 6.6 版本开始，相关网络内核参数发生改变，容易导致 Oracle 节点驱逐以及驱逐之后无法加入集群的问题。
+建议修改/etc/sysctl.conf，增加如下参数：</p>
+<pre class="hljs"><code><div>net.ipv4.ipfrag_high_thresh=16777216
+net.ipv4.ipfrag_low_thresh=15728640
+net.ipv4.ipfrag_time=60
+</div></code></pre>
+<p>说明： 其中 high 参数的设置计算公式为：numCPU *130000，假 设系统逻辑 cpu 为 96，那么 high参数建议至少设置为 12m 以上。同时 low 参数比 high 参数少 1m 即可。<br>
+参考文档：
+RHEL 6.6: IPC Send timeout/node eviction etc with high packet reassembles failure (Doc ID 2008933.1)
+RAC Cluster is Experiencing Node Evictions after Kernel Upgrade to OL6.6 (Doc ID 2011957.1)</p>
+<h3 id="28-%E6%97%B6%E9%97%B4%E5%92%8C%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5">2.8 时间和时间同步</h3>
+<p>在 Oracle RAC 数据库中，节点间的时间同步非常重要。而在电信企业环境中，数据库之间、应用服务器和数据库之间的时间同步是必须的。在这种情况下，使用 NTP 进行时间同步就成了必然的选择。
+在调整时间同步之前，需要确认系统时区：</p>
+<pre class="hljs"><code><div>cat /etc/sysconfig/clock  
+<span class="hljs-comment"># The time zone of the system is defined by the contents of /etc/localtime.</span>
+<span class="hljs-comment"># This file is only for evaluation by system-config-date, do not rely on its</span>
+<span class="hljs-comment"># contents elsewhere.</span>
+ZONE=<span class="hljs-string">"Asia/Shanghai"</span>
+UTC=<span class="hljs-literal">false</span>
+</div></code></pre>
+<p>注意上述信息中，ZONE 显示的不是中国国内所属时区，则需要调整为上述显示内容。在修改后，还需要执行如下命令（假设将时区调整为了 Asia/Shanghai）：</p>
+<pre class="hljs"><code><div>cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+</div></code></pre>
+<p>对于 NTP 时间同步，需要按如下的步骤进行检查和调整：</p>
+<p>(5).  关闭 ntp 服务 /sbin/service ntpd stop</p>
+<p>(6).  修改 ntpd 配置文件： vi /etc/sysconfig/ntpd 将 OPTIONS=&quot;-u ntp:ntp -p /var/run/ntpd.pid&quot;一行改为： OPTIONS=&quot;-x -g -u ntp:ntp -p /var/run/ntpd.pid&quot;</p>
+<p>(7).  修改 ntp 配置文件：</p>
+<pre class="hljs"><code><div>vi /etc/ntp 将原来的 ntp server 注释或删除掉，原来的 ntp server 配置类似如下：
+<span class="hljs-comment">##server 0.rhel.pool.ntp.org</span>
+<span class="hljs-comment">##server 1.rhel.pool.ntp.org</span>
+<span class="hljs-comment">##server 2.rhel.pool.ntp.org</span>
+在文件最后加上如下行（企业内部的 NTP 时钟服务器）：
+server 133.x.x.x iburst
+server 127.127.1.0 iburst
+</div></code></pre>
+<p>可以手工用 ntpdate 或 date 命令修改系统的当前时间为准确的时间，再启动 ntp 服务，并确保 ntp 服务处于开启状态：</p>
+<pre class="hljs"><code><div>chkconfig --level 35 ntpd on
+/sbin/service ntpd start
+</div></code></pre>
+<h3 id="29-%E7%BD%91%E7%BB%9C%E6%A3%80%E6%9F%A5%E5%92%8C%E8%AE%BE%E7%BD%AE">2.9  网络检查和设置</h3>
+<p>对于网络检查，有多项要检查和设置，包括网卡绑定，网络带宽，DNS 等。</p>
+<h3 id="291-%E7%BD%91%E5%8D%A1%E7%BB%91%E5%AE%9A">2.9.1 网卡绑定</h3>
+<p>在 PC 服务器上，网卡是相对较易出现故障的部件。因此强烈建议对网络链路进行冗余，即从网卡到网络交换机进行冗余。
+如本文“网络规划”一节所述，RAC 数据库节点间的私有通信网络可以使用 HAIP，也可以使用多网卡聚合绑定； 对外服务的 public 网络，即接入业务系统的网络，使用多网卡聚合。
+而对于多网卡聚合绑定，在虚拟化环境中，可以在虚拟机宿主系统（比如 ESXi Server）上进行多网卡聚合，也可以在虚拟化环境中进行。建议的选择是前者。
+总体建议是：public 网络用系统的多网卡聚合绑定，private 网络用 Oracle 数据库的HAIP。多网卡聚合绑定推荐用主备模式，即 Active-Passive 模式，这种模式对交换机的配置要求最低。
+下面是设置网卡绑定的参考步骤：</p>
+<p>(1).  用 root 用户在/etc/modprobe.d/目录下创建新文件 bonding.conf，内容如下：</p>
+<pre class="hljs"><code><div><span class="hljs-built_in">alias</span> bondeth0 bonding
+</div></code></pre>
+<p>(2).  在/etc/sysconfig/network-scripts/目录下创建 ifcfg-bondeth0 文件，内容如下：</p>
+<pre class="hljs"><code><div>DEVICE=bond0
+IPADDR=133.37.x.x
+NETMASK=255.255.255.0
+ONBOOT=yes
+BOOTPROTO=none
+USERCTL=no
+HOTPLUG=<span class="hljs-string">"no"</span>
+BONDING_OPTS=<span class="hljs-string">"mode=active-backup miimon=100"</span>
+</div></code></pre>
+<p>(3).  在要绑定的网卡上对应的文件（比如 ifcfg-eth0）文件中配置下面的内容：</p>
+<pre class="hljs"><code><div>DEVICE=bondeth0
+MASTER=eth0
+SLAVE=yes
+USERCTL=no
+BOOTPROTO=none
+ONBOOT=yes
+</div></code></pre>
+<p>(4).  按如上文件类似配置其他待绑定网卡（ifcfg-eth1）文件
+在/etc/rc.d/rc.local 中加入下面的内容：</p>
+<pre class="hljs"><code><div>ifenslave bondeth0 eth0 eth1
+</div></code></pre>
+<p>(5).  然后重启服务器</p>
+<p>(6).  查看网卡绑定是否正常工作：</p>
+<pre class="hljs"><code><div>cat /sys/class/net/bonding_masters
+cat /sys/class/net/bondeth0/bonding/mode
+cat /proc/net/bonding/bondeth0
+</div></code></pre>
+<p>(7).  通过拨网线等方式测试网卡绑定是否能够起到作用</p>
+<h3 id="210-%E5%AD%98%E5%82%A8%E5%A4%9A%E8%B7%AF%E5%BE%84%E5%92%8C-asmlib">2.10 存储多路径和 ASMLIB</h3>
+<p>如果在物理机上直接部署 Oracle RAC，在多条存储通路的情况下，需要配置多路径。在虚拟化环境中，如果是用 iSCSI 直接连接到后端存储，同样可能需要配置多路径。</p>
+<h4 id="2101-%E5%AD%98%E5%82%A8%E5%A4%9A%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE">2.10.1 存储多路径设置</h4>
+<p>下面的步骤演示了如何进行存储多路径设置</p>
+<p>(1).  确认多路径软件已经安装</p>
+<pre class="hljs"><code><div>rpm -qa|grep device-mapper-multipath
+</div></code></pre>
+<p>(2).  校验所有的设备 fdisk -l</p>
+<p>(3).  修改/etc/scsi_id.config 文件，加入行</p>
+<pre class="hljs"><code><div>options=-g --whitelisted --replace-whitespace
+</div></code></pre>
+<p>(4).  获取所有存储 LUN 的 scsi_id 和大小</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> `cat /proc/partitions | awk {<span class="hljs-string">'print $4'</span>} |grep sd`;<span class="hljs-keyword">do</span> val=`/sbin/blockdev --getsize64 /dev/<span class="hljs-variable">$i</span>` ;val2=`expr <span class="hljs-variable">$val</span> / 1073741824`;<span class="hljs-built_in">echo</span> <span class="hljs-string">"/dev/<span class="hljs-variable">$i</span>:    <span class="hljs-variable">$val2</span>    `scsi_id -gud /dev/<span class="hljs-variable">$i</span>`"</span> ;<span class="hljs-keyword">done</span>
+</div></code></pre>
+<p>(5).  修改/etc/multipath.conf 配置文件
+如果没有该文件，执行：</p>
+<pre class="hljs"><code><div>cp /usr/share/doc/device-mapper-multipath-0.4.9/multipath.conf /etc/multipath.conf
+</div></code></pre>
+<p>注意上面的 0.4.9 是版本号，实际系统可能有所不同。
+在文件中加入加入下面的内容：</p>
+<pre class="hljs"><code><div>blacklist {
+    devnode <span class="hljs-string">"^(ram|raw|loop|fd|md|dm-|sr|scd|st)[0-9]*"</span>
+    devnode <span class="hljs-string">"^hd[a-z][[0-9]*]"</span>
+    devnode <span class="hljs-string">"^cciss!c[0-9]d[0-9]*[p[0-9]*]"</span>
+    devnode <span class="hljs-string">"dasd[a-z]+[0-9]*"</span>
+    }
+    multipaths {
+        multipath {
+            wwid 3600254567259abde00006000004c0000
+            <span class="hljs-built_in">alias</span> diskcrs01
+            uid 1102
+            gid 1001
+            mode 660
+            }
+        multipath {
+            wwid 3601213101259abde0000600000500000
+            <span class="hljs-built_in">alias</span> diskcrs02
+            uid 1102
+            gid 1001
+            mode 660
+            }
+        }
+</div></code></pre>
+<p>注：以上配置只是示例。wwid 表示存储 LUN 即系统上的磁盘的唯一标识，uid 表示 grid用户的 user id，gid 表示 oinstall 组的 group id。alias 表示磁盘的持久化的逻辑名字。</p>
+<p>(6).  确认 multipath 正常：
+执行下而的命令：</p>
+<pre class="hljs"><code><div> modprobe dm-multipath
+ service multipathd start
+ multipath –d
+ multipath –v2
+</div></code></pre>
+<p>自动运行 Multipath 服务</p>
+<pre class="hljs"><code><div> chkconfig multipathd on
+ chkconfig --list multipathd
+</div></code></pre>
+<p>(7).  配置 udev 以设置权限：
+在多路径配置文件 multipath.conf 文件中为磁盘指定了权限，但是在某些版本的多路径软件中这个不会生效，此时需要用 udev 来设置属主和权限，修改文件/etc/udev/rules.d/12-dm-permissions.rules</p>
+<pre class="hljs"><code><div>ENV{DM_NAME}==<span class="hljs-string">"diskcrs01"</span>,OWNER:=<span class="hljs-string">"grid"</span>,GROUP:=<span class="hljs-string">"oinstall"</span>,MODE:=<span class="hljs-string">"660"</span>
+</div></code></pre>
+<p>以上的示例中，diskcrs01 表示磁盘的多路径逻辑名字。 运行/sbin/start_udev 命令以生效。 后续在安装 Grid Infrastructure 和创建 ASM 磁盘时即可以用/dev/mapper/目录下的设备。 注意：</p>
+<p>❑  在使用多路径情况下，磁盘不需要分区。</p>
+<p>❑  不同的存储设备，对多路径有不同的参数设置，建议由系统管理员和存储专业人员进行配置。</p>
+<h4 id="2102-asmlib">2.10.2 ASMLIB</h4>
+<p>如果没有使用多路径，强烈建议使用 ASMLIB 来管理 ASM 磁盘。下载及安装 ASMLIB
+请参考：<a href="http://www.oracle.com/technetwork/server-storage/linux/asmlib/rhel6-1940776.html">http://www.oracle.com/technetwork/server-storage/linux/asmlib/rhel6-1940776.html</a>
+使用 ASMLIB 标注 ASM 磁盘之前，建议对磁盘进行分区，每个磁盘仅分成一个分区。</p>
+<h3 id="211-%E7%94%A8%E6%88%B7%E5%8F%8A-limits-%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE">2.11 用户及 limits 和环境变量设置</h3>
+<p>安装 Oracle 11g RAC 数据库，需要创建两个用户：grid 和 oracle，为简化管理，只创建 oinstall 和 dba 两个组。建议在数据库的所有节点上，相同组和相同用户的 gid 和 uid一致。</p>
+<h4 id="2111-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E7%94%A8%E6%88%B7%E7%BB%84%E4%BB%A5%E5%8F%8A%E7%9B%AE%E5%BD%95">2.11.1 创建用户、用户组以及目录</h4>
+<p>创建用户以及用户组的命令如下：</p>
+<pre class="hljs"><code><div>/usr/sbin/groupadd -g 501 oinstall
+/usr/sbin/groupadd -g 502 dba
+/usr/sbin/useradd -u 502 -g oinstall -G dba oracle  -m -s /bin/bash
+/usr/sbin/useradd -u 501 -g oinstall -G dba grid  -m -s /bin/bash
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"Qaz123()"</span>|passwd oracle --stdin
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"Qaz123()"</span>|passwd grid –stdin  
+</div></code></pre>
+<p>创建相关目录</p>
+<pre class="hljs"><code><div>mkdir -p /oracle
+mkdir -p  /oracle/app/grid
+mkdir -p /oracle/app/11.2/grid
+mkdir -p /oracle/app/oracle/product/11.2/dbhome_1
+chown grid:oinstall   /oracle/app
+chown grid:oinstall   /oracle/app/grid
+chown -R grid:oinstall /oracle/app/11.2/grid
+chown -R oracle:oinstall /oracle/app/oracle
+</div></code></pre>
+<h4 id="2112-limits-%E8%AE%BE%E7%BD%AE">2.11.2 limits 设置</h4>
+<p>设置用户限制的过程如下：
+(1).  把下面的行增加到/etc/security/limits.conf 文件中</p>
+<pre class="hljs"><code><div>oracle soft nproc 2047
+oracle hard nproc 16384
+oracle soft nofile 4096
+oracle hard nofile 65536
+oracle soft stack 10240
+oracle hard stack 32768
+grid soft nproc 2047
+grid hard nproc 16384
+grid soft nofile 4096
+grid hard nofile 65536
+grid soft stack 32768
+grid hard stack 32768  
+</div></code></pre>
+<p>(2).  将下面的行增加到/etc/pam.d/login 文件中</p>
+<pre class="hljs"><code><div>session    required     pam_limits.so
+</div></code></pre>
+<p>(3).  把下面的行增加到/etc/profile 文件中</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">if</span> [ <span class="hljs-variable">$USER</span> = <span class="hljs-string">"oracle"</span> ] || [ <span class="hljs-variable">$USER</span> = <span class="hljs-string">"grid"</span> ] || [ <span class="hljs-variable">$USER</span> = <span class="hljs-string">"root"</span> ];<span class="hljs-keyword">then</span>
+         <span class="hljs-keyword">if</span>  [ <span class="hljs-variable">$SHELL</span> = <span class="hljs-string">"/bin/ksh"</span> ]; <span class="hljs-keyword">then</span>
+                       <span class="hljs-built_in">ulimit</span> -p 16384
+                       <span class="hljs-built_in">ulimit</span> -n 65536
+         <span class="hljs-keyword">else</span>
+                        <span class="hljs-built_in">ulimit</span> -u 16384 -n 65536
+         <span class="hljs-keyword">fi</span>
+<span class="hljs-keyword">fi</span>
+</div></code></pre>
+<p>在 RHEL 6 版本下，需要注意系统对 limits 的设置机制有一些变化，除了传统的/etc/security/limits.conf 文件，在/etc/security/limits.d/目录下有相应的配置文件，例如</p>
+<pre class="hljs"><code><div>ls -l /etc/security/limits.d/
+total 4
+-rw-r--r--. 1 root root 191 Oct 15  2012 90-nproc.conf  
+cat /etc/security/limits.d/90-nproc.conf  
+<span class="hljs-comment"># Default limit for number of user's processes to prevent # accidental fork bombs.</span>
+<span class="hljs-comment"># See rhbz #432903 for reasoning.  </span>
+*          soft    nproc     1024
+root       soft    nproc     unlimited
+</div></code></pre>
+<h4 id="2113-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE">2.11.3 环境变量设置</h4>
+<p>对于 Oracle 用户的.bash_profile 设置示例如下：</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># .bash_profile  </span>
+<span class="hljs-comment"># Get the aliases and functions</span>
+<span class="hljs-keyword">if</span> [ -f ~/.bashrc ];<span class="hljs-keyword">then</span>
+         . ~/.bashrc 
+<span class="hljs-keyword">fi</span>  
+<span class="hljs-comment"># User specific environment and startup programs  </span>
+PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$HOME</span>/bin  
+<span class="hljs-built_in">export</span> PATH
+<span class="hljs-built_in">unset</span> USERNAME
+<span class="hljs-built_in">umask</span> 022
+<span class="hljs-built_in">export</span> ORACLE_BASE=/oracle/app/oracle
+<span class="hljs-built_in">export</span> ORACLE_HOME=<span class="hljs-variable">$ORACLE_BASE</span>/product/11.2
+<span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$ORACLE_HOME</span>/bin:<span class="hljs-variable">$ORACLE_HOME</span>/OPatch
+<span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$ORACLE_HOME</span>/lib
+<span class="hljs-built_in">export</span> LANG=en_US
+<span class="hljs-built_in">export</span> NLS_LANG=american_america.ZHS16GBK
+<span class="hljs-built_in">export</span> NLS_DATE_FORMAT=<span class="hljs-string">"yyyy-mm-dd hh24:mi:ss"</span>
+<span class="hljs-built_in">export</span> ORACLE_SID=&lt;oracle_sid&gt;
+<span class="hljs-built_in">alias</span> rm=<span class="hljs-string">'rm –i'</span>
+</div></code></pre>
+<p>对于 grid 用户，.bash_profile 设置示例如下：</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># .bash_profile  </span>
+<span class="hljs-comment"># Get the aliases and functions</span>
+<span class="hljs-keyword">if</span> [ -f ~/.bashrc ];<span class="hljs-keyword">then</span>
+         . ~/.bashrc
+<span class="hljs-keyword">fi</span>  
+<span class="hljs-comment"># User specific environment and startup programs  </span>
+PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$HOME</span>/bin  
+<span class="hljs-built_in">export</span> PATH
+<span class="hljs-built_in">unset</span> USERNAME  
+<span class="hljs-built_in">umask</span> 022  
+<span class="hljs-built_in">export</span> ORACLE_BASE=/oracle/app/grid
+<span class="hljs-built_in">export</span> ORACLE_HOME=/oracle/app/11.2/grid
+<span class="hljs-built_in">export</span> GRID_HOME=<span class="hljs-variable">$ORACLE_HOME</span>
+<span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$ORACLE_HOME</span>/bin:<span class="hljs-variable">$ORACLE_HOME</span>/OPatch
+<span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$ORACLE_HOME</span>/lib
+<span class="hljs-built_in">export</span> LANG=en_US
+<span class="hljs-built_in">export</span> ORACLE_SID=+ASM1
+<span class="hljs-built_in">export</span> NLS_LANG=american_america.ZHS16GBK
+<span class="hljs-built_in">export</span> NLS_DATE_FORMAT=<span class="hljs-string">"yyyy-mm-dd hh24:mi:ss"</span> <span class="hljs-built_in">alias</span> rm=<span class="hljs-string">'rm –i'</span>
+</div></code></pre>
+<p>注：上述的 ORACLE_SID=+ASM1 在的节点分别为+ASM2 等。</p>
+<h4 id="2114-%E5%A4%A7%E5%86%85%E5%AD%98%E9%A1%B5%E8%AE%BE%E7%BD%AE">2.11.4 大内存页设置</h4>
+<p>在 Linux 系统上使用 ORACLE 数据库，强烈建议使用大内存页，否则对大 SGA 和高连接数系统来说，系统的性能和稳定性将会受到严重影响。 下面是大内存页设置的具体步骤：
+(1).  确认操作系统支持大内存页
+有的操作系统内核不支持大内存页，通过下面的命令可以确认系统是否支持大内存页。</p>
+<pre class="hljs"><code><div><span class="hljs-comment">#  grep -i huge /proc/meminfo</span>
+AnonHugePages:         0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+</div></code></pre>
+<p>上述信息表明了内核支持大内存页，大内存页面大小为 2M。</p>
+<p>(2).  计算需要的大内存页数量 根据系统情况确定 SGA 大小，在初始情况下可以设置 SGA 为物理内存一半大小，假设其为 128G，由于 Oracle 可能会使得 SGA 略微大于设置的参数值，所以我们一般会设置大内存总量比 SGA 略大。
+128G*1024/2=65536，比这个值略大一点，比如为 65560。</p>
+<p>(3).  设置内核参数
+在/etc/sysctl.conf 文件中增加一行：</p>
+<pre class="hljs"><code><div>vm.nr_hugepages = 65560
+</div></code></pre>
+<p>然后用 sysctl –p 命令使参数生效。
+(4).  检查大内存页数量：</p>
+<pre class="hljs"><code><div>grep  -i huge /proc/meminfo
+</div></code></pre>
+<p>在得到的结果中 HugePages_Total 值应该为 65560，否则可能是操作系统内存碎片化严重，没有足够的连续的内存用于大页面内存，此种情况下需要重启服务器。</p>
+<p>(5).  设置用户的 limits。
+在/etc/security/limits.conf 文件中增加用户的 lock memory 设置</p>
+<pre class="hljs"><code><div>oracle  hard    memlock  157286400
+oracle  soft    memlock  157286400
+grid    hard    memlock  157286400
+grid    soft    memlock  157286400
+</div></code></pre>
+<p>此处的数字以 KB 为单位，由于此处只是一个 limits 设置，所以可以比实际的可用大内存页大很多。但是不能小于实际的可用的大内存页。
+注意：</p>
+<p>❑  AMM（自动内存管理）不支持使用大内存页，所以在后面建库时，应设置数据库的 memory_target 参数和 memory_max_target 值为 0。</p>
+<p>❑  在数据库中需要将 use_large_pages 参数设置为 TRUE(11.2.0.3 版本中为默认值)。</p>
+<h3 id="212-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">2.12 数据库参数调整</h3>
+<h3 id="213-asm-au-%E5%A4%A7%E5%B0%8F">2.13 ASM AU 大小</h3>
+<p>ASM 磁盘组使用的是默认的 1M AU 大小，对于大型数据库，这会造成较多的内存占用，同时对性能略微有些影响，建议对于新增的用于放置数据文件的 ASM 磁盘组，适当调大 AU大小，比如 4M 或 8M（2 的幂值）。</p>
+<h3 id="214-asm-%E5%8F%82%E6%95%B0%E6%A3%80%E6%9F%A5%E5%92%8C%E8%B0%83%E6%95%B4">2.14 ASM 参数检查和调整</h3>
+<p>在 11.2.0.3/11.2.0.4，初始化参数 &quot;processes&quot;的默认值为“可用的 CPU 核数*80+40”. 初始化参数&quot;memory_target&quot; 的默认值是基于&quot;processes&quot;的，如果有大量的 CPU 核数或者磁盘组，这可能导致默认的&quot;memory_target&quot;不足，并导致各种问题（例如：GI stacks 由于 ORA-04031 错误无法启动）。</p>
+<pre class="hljs"><code><div>SQL&gt; alter system <span class="hljs-built_in">set</span> memory_max_target=4096m scope=spfile;
+SQL&gt; alter system <span class="hljs-built_in">set</span> memory_target=1536m scope=spfile;
+</div></code></pre>
+<p>如果 ASM 的 processes 参数默认值小于 150，建议手工调整到 150 或以上。</p>
+<h3 id="215-chm-%E8%B0%83%E6%95%B4">2.15 CHM 调整</h3>
+<p>CHM（Cluster Health Monitor）是 11.2 的新特性，会每五秒采集 OS 状态信息数据，如 CPU 使用率，进程内存使用情况，操作系统内存使用情况，磁盘 IO 情况等，然后它将这些数据存放到本地磁盘。建议设置足够长的保留时间，以用于故障分析使用。一般保留 3-5天为宜。注意：保留时间越长，消耗更多的磁盘空间。</p>
+<p>调整方法:
+如下命令查询得到 CHM 保留时间，单位是秒。</p>
+<pre class="hljs"><code><div>[root@db1 db1]<span class="hljs-comment"># oclumon manage -get repsize        显示多少秒，当前是 61624 秒</span>
+CHM Repository Size = 61624
+[root@db1 db1]<span class="hljs-comment"># oclumon manage -repos resize   259200     调整为保留三天</span>
+</div></code></pre>
+<h2 id="%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">第三章  数据库参数调整</h2>
+<h3 id="31%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE">3.1数据库参数设置</h3>
+<pre class="hljs"><code><div>Alter system <span class="hljs-built_in">set</span> resource_manager_plan=’FORCE:’ scope =spfile sid=<span class="hljs-string">'*'</span>;
+Alter system <span class="hljs-built_in">set</span> audit_trail=none scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> undo_retention=10800 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> session_cached_cursors=200 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> db_files=2000 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> max_shared_servers=0 scope=spfile sid=’*’;
+alter system <span class="hljs-built_in">set</span> sec_max_failed_login_attempts=100 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> deferred_segment_creation=<span class="hljs-literal">false</span> scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> parallel_force_local=<span class="hljs-literal">true</span> scope=spfile  sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> parallel_max_servers=32 scope=spfile  sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> sec_case_sensitive_logon=<span class="hljs-literal">false</span> scope=spfile  sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> open_cursors=3000     scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> open_link =40      scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> open_links_per_instance =40  scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> sga_target=0 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> db_cache_size=120g scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> shared_pool_size=25g scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> large_pool_size=512m scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> java_pool_size=512m scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> db_cache_advice=off scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> gcs_server_processes=6  scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_b_tree_bitmap_plans"</span>=<span class="hljs-literal">false</span> scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_gc_policy_time"</span>=0 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_gc_defer_time"</span>=3 scope=spfile sid=<span class="hljs-string">'*'</span>;  
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_lm_tickets"</span>=5000 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_optimizer_use_feedback"</span>=<span class="hljs-literal">false</span> sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_undo_autotune"</span>=<span class="hljs-literal">false</span> scope=both  sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_bloom_filter_enabled"</span>=FALSE     scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_cleanup_rollback_entries"</span>=2000  scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_px_use_large_pool"</span>=<span class="hljs-literal">true</span> scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_optimizer_extended_cursor_sharing_rel"</span>=NONE scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_optimizer_extended_cursor_sharing"</span>=NONE scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_optimizer_adaptive_cursor_sharing"</span>=<span class="hljs-literal">false</span>  scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_optimizer_mjc_enabled"</span>=FALSE  scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_sort_elimination_cost_ratio"</span>=1 scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_partition_large_extents"</span>=FALSE scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_index_partition_large_extents"</span>=FALSE  scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_memory_imm_mode_without_autosga"</span>=FALSE scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_clusterwide_global_transactions"</span>=FALSE scope=spfile sid=<span class="hljs-string">'*'</span>;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_part_access_version_by_number"</span>=FALSE scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_partition_large_extents"</span>=FALSE    scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_sort_elimination_cost_ratio"</span>=1    scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_use_adaptive_log_file_sync"</span>=FALSE  scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_lm_sync_timeout"</span>=1200 scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_ksmg_granule_size"</span>=134217728 scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_optimizer_cartesian_enabled"</span>=<span class="hljs-literal">false</span> scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_external_scn_logging_threshold_seconds"</span>=3600 scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_datafile_write_errors_crash_instance"</span>=<span class="hljs-literal">false</span> scope=spfile;
+alter system <span class="hljs-built_in">set</span> event=<span class="hljs-string">'28401 TRACE NAME CONTEXT FOREVER, LEVEL 1:60025 trace name context forever:10949 trace name context forever,level 1'</span> sid=<span class="hljs-string">'*'</span> scope=spfile;
+</div></code></pre>
+<h3 id="32-crs-%E8%B5%84%E6%BA%90%E5%B1%9E%E6%80%A7%E8%B0%83%E6%95%B4">3.2 CRS 资源属性调整</h3>
+<p>在 Oracle 11.2.0.4 版本中，CRS 默认每秒检查一次网络健康情况，如果发现网络存在异常比如闪断；那么将会立刻将 SCAN/LISTENER 等资源进行 failover 切换；可能影响业务。不仅如此，VIP 资源也会收到影响。 根据在甘肃电信 CRM 的实际运维经验，建议将 CRS 的 check 频率调大，如下：</p>
+<pre class="hljs"><code><div>grid@xxx:/home/grid$ crsctl <span class="hljs-built_in">stat</span> res ora.net1.network -p
+NAME=ora.net1.network
+TYPE=ora.network.type .....
+AUTO_START=restore
+CHECK_INTERVAL=1
+DEFAULT_TEMPLATE=
+DEGREE=1
+DESCRIPTION=Oracle Network resource .....
+OFFLINE_CHECK_INTERVAL=60
+.....
+</div></code></pre>
+<p>建议将 public 网络的检查频率从 1 秒修改为 6 秒。</p>
+<pre class="hljs"><code><div>crsctl modify res ora.net1.network -attr &quot;CHECK_INTERVAL=6&quot;
+</div></code></pre>
+<h3 id="33-%E6%97%B6%E9%97%B4%E7%AA%97%E5%8F%A3%E8%AE%BE%E7%BD%AE">3.3 时间窗口设置</h3>
+<pre class="hljs"><code><div>EXECUTE  DBMS_SCHEDULER.SET_ATTRIBUTE(<span class="hljs-string">'SATURDAY_WINDOW'</span>,<span class="hljs-string">'repeat_interval'</span>,<span class="hljs-string">'freq=daily;byday=SAT;byhour=22;byminute=0;bysecond=0'</span>);
+EXECUTE DBMS_SCHEDULER.SET_ATTRIBUTE(<span class="hljs-string">'SUNDAY_WINDOW'</span>,<span class="hljs-string">'repeat_interval'</span>,<span class="hljs-string">'freq=daily;byday=SUN;byhour=22;byminute=0;bysecond=0'</span>);  
+EXEC DBMS_SCHEDULER.SET_ATTRIBUTE(<span class="hljs-string">'SATURDAY_WINDOW'</span>, <span class="hljs-string">'duration'</span>, <span class="hljs-string">'+000 08:00:00'</span>);
+EXEC DBMS_SCHEDULER.SET_ATTRIBUTE(<span class="hljs-string">'SUNDAY_WINDOW'</span>, <span class="hljs-string">'duration'</span>, <span class="hljs-string">'+000 08:00:00'</span>);
+<span class="hljs-built_in">exec</span> dbms_scheduler.disable(<span class="hljs-string">'WEEKNIGHT_WINDOW'</span>, TRUE);
+<span class="hljs-built_in">exec</span> dbms_scheduler.disable(<span class="hljs-string">'WEEKEND_WINDOW'</span>, TRUE);
+</div></code></pre>
+<h3 id="34-%E7%A6%81%E7%94%A8%E4%B8%8D%E5%BF%85%E8%A6%81%E7%9A%84job">3.4 禁用不必要的job</h3>
+<pre class="hljs"><code><div><span class="hljs-built_in">exec</span> dbms_scheduler.disable(<span class="hljs-string">'ORACLE_OCM.MGMT_CONFIG_JOB'</span>);
+<span class="hljs-built_in">exec</span> dbms_scheduler.disable(<span class="hljs-string">'ORACLE_OCM.MGMT_STATS_CONFIG_JOB'</span>);
+BEGIN
+DBMS_AUTO_TASK_ADMIN.DISABLE(
+    client_name =&gt; <span class="hljs-string">'auto space advisor'</span>,
+    operation =&gt; NULL,
+    window_name =&gt; NULL
+);
+END;
+/
+
+BEGIN
+DBMS_AUTO_TASK_ADMIN.DISABLE(
+    client_name =&gt; <span class="hljs-string">'sql tuning advisor'</span>,
+    operation =&gt; NULL,
+    window_name =&gt; NULL
+    );
+END;
+/
+</div></code></pre>
+<h2 id="%E7%AC%AC%E4%BA%94%E7%AB%A0-%E9%99%84%E5%BD%95%E9%83%A8%E5%88%86%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%82%E6%95%B0%E8%A7%A3%E9%87%8A%E8%AF%B4%E6%98%8E">第五章  附录(部分数据库参数解释说明)</h2>
+<p>在 Oracle 11g 安装并建库后，需要进行一些调整，使数据库能够稳定、高效地运行。除了对数据库使用手工内存管理之外，还需要进行如下的调整(部分内容已经在前面的数据库调整部分进行了说明)。</p>
+<h3 id="51-%E9%92%88%E5%AF%B9-rac-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4">5.1  针对 RAC 数据库的参数调整</h3>
+<ol>
+<li>Parallel</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> parallel_force_local=<span class="hljs-literal">true</span> <span class="hljs-keyword">sid</span>=<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>说明：这个参数是 11g 的新增参数，用于将并行的 slave 进程限制在发起并行 SQL 的会话所在的节点，即避免跨节点并行产生大量的节点间数据交换和引起性能问题。
+这个参数用于取代 11g 之前 instance_groups 和 parallel_instance_group 参数设置。</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> parallel_max_server =<span class="hljs-number">64</span> <span class="hljs-keyword">sid</span>=<span class="hljs-string">'*'</span>  <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>说明：这个参数默认值与 CPU 相关，OLTP 系统中将这个参数设置小一些，可以避免过多的并行对系统造成冲击。</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> parallel_adaptive_multi_user=<span class="hljs-literal">false</span>;
+</div></code></pre>
+<p>说明：被设置为 true 时，使自适应算法可用，该算法被设计来改善使用并行的多用户环境的性能。该算法在查询开始时基于系统负载来自动减少被要求的并行度。实际的并行度基于默认、来自表或 hints 的并行度，然后除以一个缩减因数。该算法假设系统已经在单用户环境下进行了最优调整。表和 hints 用默认的并行度。</p>
+<p>1.DRM</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_gc_policy_time"</span>=<span class="hljs-number">0</span> <span class="hljs-keyword">sid</span>=<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_gc_undo_affinity"</span>=<span class="hljs-literal">false</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>说明：这两个参数用于关闭 RAC 的 DRM（dynamic remastering）特性，避免频繁的 DRM使系统性能不稳定、严重的时候使数据库挂起。同时也关闭 Read-mostly Locking 新特性，这个特性目前会触发大量的 BUG，严重时使数据库实例宕掉。
+针对 11g RAC，需要注意的是如果节点的 CPU 数量不一样，这可能导致推导出来的 lms进程数量不一样，根据多个案例的实践来看，lms 数量不一样在高负载时会产生严重的性能问题，在此种情况下，需要手工设置 gcs_server_processes 参数，使 RAC 数据库所有节点的 lms 进程数相同。</p>
+<p>5.2 RAC 数据库和非 RAC 数据库都适用的参数调整</p>
+<ol>
+<li>性能相关</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_optimizer_adaptive_cursor_sharing"</span>=<span class="hljs-literal">false</span> <span class="hljs-keyword">sid</span>=<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_optimizer_extended_cursor_sharing"</span>=<span class="hljs-keyword">none</span> <span class="hljs-keyword">sid</span>=<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_optimizer_extended_cursor_sharing_rel"</span>=<span class="hljs-keyword">none</span> <span class="hljs-keyword">sid</span>=<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_optimizer_use_feedback"</span>=<span class="hljs-literal">false</span>  <span class="hljs-keyword">sid</span> =<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_optimizer_null_aware_antijoin"</span>=<span class="hljs-literal">false</span> <span class="hljs-keyword">sid</span> =<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_optimizer_mjc_enabled"</span>=<span class="hljs-literal">false</span> <span class="hljs-keyword">sid</span> =<span class="hljs-string">'*'</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>说明：这几个参数都是用于关闭 11g 的 adaptive cursor sharing、cardinality feedback、null aware antijoin、merge join cartesian 特性，避免出现 SQL 性能不稳定、SQL 子游标过多、bug 的问题。</p>
+<p>alter system set “_b_tree_bitmap_plans”=false sid=’*’ scope=spfile;
+说明：对于 OLTP 系统，Oracle 可能会将两个索引上的 ACCESS PATH 得到的 rowid 进行bitmap 操作再回表，这种操作有时逻辑读很高，对于此类 SQL 使用复合索引才能从根本上解决问题。</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_simple_view_merging"</span>=<span class="hljs-literal">true</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>关闭简单视图合并</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_cursor_obsolete_threshold"</span> =<span class="hljs-number">100</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>Cursor Obsolescence 游标废弃是一种 SQL Cursor 游标管理方面的增强特性，该特性启用后若 parent cursor 父游标名下的子游标 child cursor 总数超过一定的数目，则该父游标 parent cursor 将被废弃，同时一个新的父游标将被开始。 这样做有 2 点好处：</p>
+<p>⚫  避免进程去扫描长长的子游标列表 child cursor list 以找到一个合适的子游标child cursor</p>
+<p>⚫  废弃的游标将在一定时间内被 age out，其占用的内存可以被重新利用</p>
+<p>实际在版本 10g 中就引入了该 Cursor Obsolescence 游标废弃特性，当时 child cursor 的总数阀值是 1024， 但是这个阀值在 11g 中被移除了,这导致出现一个父游标下大量 child cursor 即 high version count 的发生；由此引发了一系列的版本 11.2.0.3 之前的 cursor sharing 性能问题，主要症状是版本 11.2.0.1 和 11.2.0.2 上出现大量的 Cursor: Mutex S 和 library cache lock 等待事件。
+增强补丁 Enhancement patch《Bug 10187168 – Enhancement to obsolete parent cursors  if  VERSION_COUNT  exceeds  a  threshold 》 就 该 问 题 引 入 了 新 的 隐 藏 参 数_cursor_obsolete_threshold(Number  of  cursors  per  parent  before  obsoletion.) ，该”_cursor_obsolete_threshold”参数用以指定子游标总数阀值，若一个父游标的 child cursor count&lt;=&gt;version count 高于”_cursor_obsolete_threshold”，则触发 Cursor Obsolescence 游标废弃特性。</p>
+<p>注意:
+版本11.2.0.3中默认就有”_cursor_obsolete_threshold”了，而且默认值为100。 对于版本11.1.0.7、11.2.0.1和11.2.0.2则都有该Bug 10187168的bug backport存在，从2011年5月开始就有相关针对的one-off backport补丁存在。 但是这些one-off backport补丁不使用”_cursor_obsolete_threshold”参数。在版本11.1.0.7、11.2.0.1和11.2.0.2上需要设置合适的”_cursor_features_enabled”(默认值为2)参数，并设置必要的106001 event，该event的level值即是child cursor count的阀值，必须设置该106001事件后该特性才生效。 但是请注意 ”_cursor_features_enabled”参数需要重启实例方能生效。而”_cursor_obsolete_threshold”参数和106001 event则可以在线启用、禁用。</p>
+<h3 id="52-segmentextent-%E7%9B%B8%E5%85%B3">5.2.  segment\extent 相关</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> deferred_segment_creation=<span class="hljs-literal">false</span> sid=<span class="hljs-string">'*'</span> scope=spfile;
+</div></code></pre>
+<p>说明：这个参数用于关闭 11g 的段延迟创建特性，避免出现这个新特性引起的 BUG，比如数据导入导出 BUG、表空间删除后对应的表对象还在数据字典里面等。</p>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_partition_large_extents"</span>=<span class="hljs-literal">false</span> sid=’*’ scope=spfile;
+alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_index_partition_large_extents"</span>=<span class="hljs-literal">false</span> sid=’*’ scope=spfile;
+</div></code></pre>
+<p>说明：在 11g 里面，新建分区会给一个比较大的初始 extent 大小（8M），如果一次性建的分区很多，比如按天建的分区，则初始占用的空间会很大。</p>
+<h3 id="53-event">5.3  Event</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> event=<span class="hljs-string">'28401 trace name context forever,level 1'</span>,<span class="hljs-string">'60025 trace name context forever'</span>,<span class="hljs-string">'10943 trace name context forever,level 2097152'</span>,<span class="hljs-string">'10949 trace name context forever,level 1'</span>,<span class="hljs-string">'10262 trace name context forever, level 90000'</span> scope=spfile;
+</div></code></pre>
+<p>说明：这个参数主要设置 2 个事件：</p>
+<ol>
+<li>
+<p>10949 事件用于关闭 11g 的自动 serial direct path read 特性，避免出现过多的直接路径读，消耗过多的 IO 资源。</p>
+</li>
+<li>
+<p>28401 事件用于关闭 11g 数据库中用户持续输入错误密码时的延迟用户验证特性，避免用户持续输入错误密码时产生大量的 row cache lock 或 library cache lock等待，严重时使数据库完全不能登录。</p>
+</li>
+<li>
+<p>60025</p>
+</li>
+<li>
+<p>10943</p>
+</li>
+<li>
+<p>10262</p>
+</li>
+</ol>
+<h3 id="54-resource">5.4.  resource</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> resource_limit=<span class="hljs-literal">true</span> sid=<span class="hljs-string">'*'</span> scope=spfile;
+alter system <span class="hljs-built_in">set</span> resource_manager_plan=<span class="hljs-string">'force:'</span> sid=<span class="hljs-string">'*'</span> scope=spfile;
+</div></code></pre>
+<p>说明：这两个参数用于将资源管理计划强制设置为“空”，避免 Oracle 自动打开维护窗口（每晚 22:00 到早上 6:00，周末全天）的资源计划（resource manager plan），使系统在维护窗口期间资源不足或触发相应的 BUG。</p>
+<h3 id="55-undo">5.5  undo</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_undo_autotune"</span>=<span class="hljs-literal">false</span> sid=<span class="hljs-string">'*'</span> scope=spfile;
+</div></code></pre>
+<p>说明：关闭 UNDO 表空间的自动调整功能，避免出现 UNDO 表空间利用率过高或者是 UNDO段争用的问题。 alter system set undo_retention=10800;alter system set &quot;_highthreshold_undoretention&quot;=50000 scope=spfile;</p>
+<h3 id="56-%E5%AE%A1%E8%AE%A1">5.6  审计</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> audit_trail=none sid=’*’ scope=spfile;
+</div></code></pre>
+<p>说明：11g 默认打开数据库审计，为了避免审计带来的 SYSTEM 表空间的过多占用，可以关闭审计, 考虑关闭审计</p>
+<h3 id="57-%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3">5.7  内存相关</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_memory_imm_mode_without_autosga"</span>=<span class="hljs-literal">false</span> sid=<span class="hljs-string">'*'</span> scope=spfile;
+</div></code></pre>
+<p>说明：11.2.0.3 版本里面，即使是手工管理内存方式下，如果某个 POOL 内存吃紧，Oracle仍然可能会自动调整内存，用这个参数来关闭这种行为。</p>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_px_use_large_pool"</span>=<span class="hljs-literal">true</span>  sid =<span class="hljs-string">'*'</span> scope=spfile;
+</div></code></pre>
+<p>说明：11g 数据库中，并行会话默认使用的是 shared pool 用于并行执行时的消息缓冲区，并行过多时容易造成 shared pool 不足，使数据库报 ORA-4031 错误。将这个参数设置为 true，使并行会话改为使用 large pool。</p>
+<h3 id="58-%E5%90%8E%E5%8F%B0%E8%BF%9B%E7%A8%8B">5.8  后台进程</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> <span class="hljs-string">"_use_adaptive_log_file_sync"</span>=<span class="hljs-literal">false</span> sid=’*’ scope=spfile;
+</div></code></pre>
+<p>说明：11.2.0.3 版本里面，这个参数默认为 true，LGWR 会自动选择两种方法来通知其他进程 commit 已经写入：post/wait、polling。前者 LGWR 负担较重，后者等待时间会过长，特别是高负载的 OLTP 系统中。在 10g 及之前的版本中是 post/wait 方式，将这个参数设置为 false 恢复到以前版本方式。</p>
+<h3 id="59-%E5%AE%89%E5%85%A8">5.9  安全</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> sec_case_sensitive_logon=<span class="hljs-literal">false</span> sid=<span class="hljs-string">'*'</span>  scope=spfile;
+</div></code></pre>
+<p>说明：从 11g 开始，用户密码区分大小写，而此前的版本则是不区分大小写，在升级时，如果这个参数保持默认值 TRUE，可能会使一些应用由于密码不正确而连接不上。</p>
+<pre class="hljs"><code><div>alter profile <span class="hljs-string">"DEFAULT"</span> <span class="hljs-built_in">limit</span> PASSWORD_GRACE_TIME UNLIMITED;
+alter profile <span class="hljs-string">"DEFAULT"</span> <span class="hljs-built_in">limit</span> PASSWORD_LIFE_TIME UNLIMITED;
+alter profile <span class="hljs-string">"DEFAULT"</span> <span class="hljs-built_in">limit</span> PASSWORD_LOCK_TIME UNLIMITED;
+alter profile <span class="hljs-string">"DEFAULT"</span> <span class="hljs-built_in">limit</span> FAILED_LOGIN_ATTEMPTS UNLIMITED;
+</div></code></pre>
+<p>说明：11g 默认会将 DEFAULT 的 PROFILE 设置登录失败尝试次数（10 次）。这样在无意或恶意的连续使用错误密码连接时，导致数据库用户被锁住，影响业务。因此需要将登录失败尝试次数设为不限制。</p>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> O7_DICTIONARY_ACCESSIBILITY=TRUE scope=spfile;
+</div></code></pre>
+<p>该参数的默认值是 FALSE，表示用户即使被授予“select any table”权限也不允许查询 SYS 用户下的数据字典</p>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> sec_max_failed_login_attempts=100 scope=spfile;
+</div></code></pre>
+<p>该参数只对使用了 OCI  的特定程序生效，而使用 SQLPLUS 是无法生效SEC_MAX_FAILED_LOGIN_ATTEMPTS  only  works  application  uses  OCI Program.SEC_MAX_FAILED_LOGIN_ATTEMPTS not work in sqlplus. OCI Program have the following ,it wil work.
+1) You need to use OCI_THREADED mode.
+2) You need to set the attribute ofserver, username, password attributes in the appropriate handles:
+3) You need to useOCISessionBegin to connect to the database</p>
+<h3 id="510-%E5%85%B6%E4%BB%96">5.10  其他</h3>
+<pre class="hljs"><code><div>alter system <span class="hljs-built_in">set</span> enable_ddl_logging=<span class="hljs-literal">true</span> sid=<span class="hljs-string">'*'</span>  scope=spfile;
+</div></code></pre>
+<p>说明：在 11g 里面，打开这个参数可以将 ddl 语句记录在 alert 日志中。以便于某些故障的排查。建议在 OLTP 类系统中使用。</p>
+<h3 id="511-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1">5.11 定时任务</h3>
+<ol>
+<li>ORACLE_OCM</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-built_in">exec</span> dbms_scheduler.disable( <span class="hljs-string">'ORACLE_OCM.MGMT_CONFIG_JOB'</span> );
+<span class="hljs-built_in">exec</span> dbms_scheduler.disable( <span class="hljs-string">'ORACLE_OCM.MGMT_STATS_CONFIG_JOB'</span> );
+</div></code></pre>
+<p>说明：关闭一些不需要的维护任务，这两个属于 ORACLE_OCM 的任务不关闭，可能会在alert 日志中报错。
+2)自动统计信息收集
+考虑是否要关闭自动统计信息收集</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">BEGIN</span>
+DBMS_AUTO_TASK_ADMIN.DISABLE(
+    client_name =&gt; <span class="hljs-string">'auto optimizer stats collection'</span>,
+    operation =&gt; <span class="hljs-literal">NULL</span>,
+    window_name =&gt; <span class="hljs-literal">NULL</span>
+    );
+<span class="hljs-keyword">END</span>;
+/
+</div></code></pre>
+<p>说明：如果是需要采用手工收集统计信息策略，则关闭统计信息自动收集任务。</p>
+<ol>
+<li>自动收集直方图 考虑是否要关闭自动收集直方图</li>
+</ol>
+<pre class="hljs"><code><div>exec DBMS_STATS.SET_GLOBAL_PREFS( 'method_opt','FOR ALL COLUMNS SIZE 1' );
+或者
+exec DBMS_STATS.SET_PARAM( 'method_opt','FOR ALL COLUMNS SIZE 1' );
+</div></code></pre>
+<p>说明：为减少统计信息收集时间，同时为避免直方图引起的 SQL 执行计划不稳定，可以在 数 据 库 全 局 级 关 闭自 方 图 的 收 集 ， 对 于 部分 需 要 收 集 直 方 图的 表 列 ， 可 以 使 用DBMS_STATS.SET_TABLE_PREFS 过程来设置。auto space advisor
+关闭 auto space advisor</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">BEGIN</span>
+DBMS_AUTO_TASK_ADMIN.DISABLE(
+    client_name =&gt; <span class="hljs-string">'auto space advisor'</span>,
+    operation =&gt; <span class="hljs-literal">NULL</span>,
+    window_name =&gt; <span class="hljs-literal">NULL</span>
+    );
+<span class="hljs-keyword">END</span>;
+/
+</div></code></pre>
+<p>说明：关闭数据库的空间 Advisor，避免消耗过多的 IO，还有避免出现这个任务引起的library cache lock。</p>
+<h3 id="512-auto-sql-tuning">5.12 auto sql tuning</h3>
+<p>关闭 auto sql tuning</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">BEGIN</span> DBMS_AUTO_TASK_ADMIN.DISABLE(
+    client_name =&gt; <span class="hljs-string">'sql tuning advisor'</span>,
+    operation =&gt; <span class="hljs-literal">NULL</span>,
+    window_name =&gt; <span class="hljs-literal">NULL</span>
+    );
+<span class="hljs-keyword">END</span>;
+/
+</div></code></pre>
+<p>说明：关闭数据库的 SQL 自动调整 Advisor，避免消耗过多的资源。</p>
+<h3 id="513-%E8%B0%83%E6%95%B4%E6%97%B6%E9%97%B4%E7%AA%97%E5%8F%A3">5.13  调整时间窗口</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">EXECUTE</span> DBMS_SCHEDULER.SET_ATTRIBUTE(<span class="hljs-string">'SATURDAY_WINDOW'</span>,<span class="hljs-string">'repeat_interval'</span>,<span class="hljs-string">'freq=daily;byday=SAT;byhour=22;byminute=0;bysecond=0'</span>);
+<span class="hljs-keyword">EXECUTE</span> DBMS_SCHEDULER.SET_ATTRIBUTE(<span class="hljs-string">'SUNDAY_WINDOW'</span>,<span class="hljs-string">'repeat_interval'</span>,<span class="hljs-string">'freq=daily;byday=SUN;byhour=22;byminute=0;bysecond=0'</span>);
+EXEC DBMS_SCHEDULER.SET_ATTRIBUTE('SATURDAY_WINDOW', 'duration', '+000 08:00:00');
+EXEC DBMS_SCHEDULER.SET_ATTRIBUTE('SUNDAY_WINDOW', 'duration', '+000 08:00:00');
+exec dbms_scheduler.disable('WEEKNIGHT_WINDOW', TRUE);
+exec dbms_scheduler.disable('WEEKEND_WINDOW', TRUE);
+</div></code></pre>
+<p>说明：一些业务系统即使在周末，也同样处于正常的业务工作状态，比如面向公众的业务系统，在月底（虽然是周末）有批处理操作的系统，以及节假日调整的周末等，建议调整周六和周日窗口的起止时间和窗口时间长度，避免有时候周六或周日影响业务性能。</p>
+<h3 id="514-%E5%8F%AF%E9%80%89">5.14 可选</h3>
+<h4 id="5141-io">5.14.1  IO</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> filesystemio_options=setall <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>使用 FILESYSTEMIO_OPTIONS 初始化参数在文件系统文件上启用或者禁用异步 I/O 或者直接 I/O。这个参数是平台特有的，针对特定的平台最好有个默认值。
+FILESYTEMIO_OPTIONS  can be set to one of the following values:</p>
+<p>⚫  ASYNCH:  enable asynchronous I/O on file system files, which has no timing requirement for transmission. 在文件系统文件上启用异步 I/O，在数据传送上没有计时要求。</p>
+<p>⚫  DIRECTIO:  enable direct I/O on file system files, which bypasses the buffer cache. 在文件系统文件上启用直接 I/O，绕过 buffer cache。</p>
+<p>⚫  SETALL:  enable both asynchronous and direct I/O on file system files. 在文件系统文件上启用异步和直接 I/O。</p>
+<p>⚫  NONE:  disable both asynchronous and direct I/O on file system files. 在文件系统文件上禁用异步和直接 I/O。</p>
+<h4 id="5142-%E5%86%85%E5%AD%98">5.14.2  内存</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> memory_target=<span class="hljs-number">0</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>关闭AMM</p>
+<h4 id="5143-cursor">5.14.3  cursor</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> session_cached_cursors=<span class="hljs-number">400</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> open_cursors=<span class="hljs-number">4000</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<h4 id="5144-%E6%80%A7%E8%83%BD%E7%9B%B8%E5%85%B3">5.14.4  性能相关</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> <span class="hljs-string">"_sort_elimination_cost_ratio"</span>=<span class="hljs-number">1</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>cost ratio for sort eimination under first_rows mode</p>
+<h4 id="5145-dblink">5.14.5  dblink</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> open_links=<span class="hljs-number">40</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> open_links_per_instance=<span class="hljs-number">40</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<p>说明： open_links</p>
+<h4 id="5146-%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6">5.14.6.  数据文件</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> db_files=<span class="hljs-number">2000</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<h4 id="5147-%E6%8E%A7%E5%88%B6%E6%96%87%E4%BB%B6">5.14.7  控制文件</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> control_file_record_keep_time=<span class="hljs-number">31</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+<h4 id="5148-shared-servers">5.14.8  shared servers</h4>
+<pre class="hljs"><code><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> shared_servers=<span class="hljs-number">0</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> max_shared_servers=<span class="hljs-number">0</span> <span class="hljs-keyword">scope</span>=<span class="hljs-keyword">spfile</span>;
+</div></code></pre>
+
+</body>
+</html>

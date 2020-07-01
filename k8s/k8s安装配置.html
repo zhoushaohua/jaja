@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>k8s安装配置.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF">节点信息</h1>
+<table>
+<thead>
+<tr>
+<th>IP地址</th>
+<th>主机名</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>172.16.108.100</td>
+<td>habro1</td>
+<td>Docker仓库1</td>
+</tr>
+<tr>
+<td>172.16.108.101</td>
+<td>habro2</td>
+<td>Docker仓库2</td>
+</tr>
+<tr>
+<td>172.16.108.31</td>
+<td>k8s-master1</td>
+<td>主节点 + keepalived+haproxy</td>
+</tr>
+<tr>
+<td>172.16.108.32</td>
+<td>k8s-master2</td>
+<td>主节点 + keepalived+haproxy</td>
+</tr>
+<tr>
+<td>172.16.108.33</td>
+<td>k8s-master3</td>
+<td>主节点 + keepalived+haproxy</td>
+</tr>
+<tr>
+<td>172.16.108.51</td>
+<td>k8s-node1</td>
+<td>工作节点</td>
+</tr>
+<tr>
+<td>172.16.108.42</td>
+<td>k8s-node2</td>
+<td>工作节点</td>
+</tr>
+<tr>
+<td>172.16.108.43</td>
+<td>k8s-node3</td>
+<td>工作节点</td>
+</tr>
+</tbody>
+</table>
+<p>1、Hosts文件配置</p>
+<pre class="hljs"><code><div>[root@habro1 ~]<span class="hljs-comment"># cat /etc/hosts</span>
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+<span class="hljs-comment">#docker habro</span>
+172.16.108.100  habro1
+172.16.108.101  habro2
+
+<span class="hljs-comment">#k8s-master</span>
+172.16.108.31   k8s-master1
+172.16.108.32   k8s-master2
+172.16.108.33   k8s-master3
+<span class="hljs-comment">#k8s-node</span>
+172.16.108.51   k8s-node1
+172.16.108.42   k8s-node2
+172.16.108.43   k8s-node3
+</div></code></pre>
+<p>2、互信关系配置</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># 同步文件至其他节点</span>
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> `cat /etc/hosts|grep 172|awk <span class="hljs-string">'{print $2}'</span>`;<span class="hljs-keyword">do</span> scp /etc/hosts <span class="hljs-variable">$i</span>:/etc/hosts;<span class="hljs-keyword">done</span>
+<span class="hljs-comment"># 生成秘钥</span>
+ssh-keygen -t rsa
+<span class="hljs-comment"># 配置互信</span>
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> `cat /etc/hosts|grep 172|awk <span class="hljs-string">'{print $2}'</span>`;<span class="hljs-keyword">do</span> ssh-copy-id <span class="hljs-variable">$i</span>;<span class="hljs-keyword">done</span>
+<span class="hljs-comment"># 验证互信</span>
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> `cat /etc/hosts|grep 172|awk <span class="hljs-string">'{print $2}'</span>`;<span class="hljs-keyword">do</span> <span class="hljs-built_in">echo</span> <span class="hljs-variable">$i</span>;ssh <span class="hljs-variable">$i</span> date;<span class="hljs-keyword">done</span>
+</div></code></pre>
+<p>3、安装系统依赖包以及系统更新</p>
+<pre class="hljs"><code><div>yum update -y
+yum install -y conntrack ipvsadm ipset jq sysstat curl iptables libseccomp
+</div></code></pre>
+<p>4、关闭防火墙、SWAP、selinux</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># 关闭防火墙</span>
+systemctl stop firewalld &amp;&amp; systemctl <span class="hljs-built_in">disable</span> firewalld
+<span class="hljs-comment"># 重置iptables</span>
+iptables -F &amp;&amp; iptables -X &amp;&amp; iptables -F -t nat &amp;&amp; iptables -X -t nat &amp;&amp; iptables -P FORWARD ACCEPT
+<span class="hljs-comment"># 关闭swap</span>
+swapoff -a
+sed -i <span class="hljs-string">'/swap/s/^\\(.*\\)$/#\1/g'</span> /etc/fstab
+<span class="hljs-comment"># 关闭selinux</span>
+sed -i <span class="hljs-string">'s/SELINUX=enforcing/SELINUX=disabled/g'</span> /etc/selinux/config
+setenforce 0
+<span class="hljs-comment"># 关闭dnsmasq(否则可能导致docker容器无法解析域名)</span>
+service dnsmasq stop &amp;&amp; systemctl <span class="hljs-built_in">disable</span> dnsmasq
+</div></code></pre>
+<p>5、系统内核配置</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># 加载网络模块-重启生效</span>
+cat &gt; /etc/rc.sysinit &lt;&lt;EOF
+<span class="hljs-keyword">for</span> file <span class="hljs-keyword">in</span> /etc/sysconfig/modules/*.modules ; <span class="hljs-keyword">do</span>
+[ -x <span class="hljs-variable">$file</span> ] &amp;&amp; <span class="hljs-variable">$file</span>
+<span class="hljs-keyword">done</span>
+EOF
+cat &gt; /etc/sysconfig/modules/br_netfilter.modules &lt;&lt;EOF
+modprobe bridge
+modprobe br_netfilter
+EOF
+chmod 755 /etc/sysconfig/modules/br_netfilter.modules
+<span class="hljs-comment"># 生成k8s内核参数配置</span>
+cat &gt; /etc/sysctl.d/kubernetes.conf &lt;&lt;EOF
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.ipv4.ip_forward=1
+vm.swappiness=0
+vm.overcommit_memory=1
+vm.panic_on_oom=0
+fs.inotify.max_user_watches=89100
+EOF
+
+<span class="hljs-comment"># 生效配置</span>
+sysctl -p /etc/sysctl.d/kubernetes.conf
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment">#升级内核至4.4</span>
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install -y kernel<span class="hljs-_">-lt</span>
+grub2-set-default 0
+</div></code></pre>
+<h1 id="harbor%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE">harbor安装配置</h1>
+<table>
+<thead>
+<tr>
+<th>IP地址</th>
+<th>主机名</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>172.16.108.100</td>
+<td>habro1</td>
+<td>Docker仓库1</td>
+</tr>
+<tr>
+<td>172.16.108.101</td>
+<td>habro2</td>
+<td>Docker仓库2</td>
+</tr>
+</tbody>
+</table>
+<p>1、安装依赖包</p>
+<pre class="hljs"><code><div>yum -y install yum-utils device-mapper-persistent-data lvm2
+wget -O /etc/yum.repos.d/docker-ce.repo https://download.docker.com/linux/centos/docker-ce.repo
+yum -y install docker-ce
+</div></code></pre>
+<p>2、配置Docker镜像加速</p>
+<pre class="hljs"><code><div>mkdir /etc/docker
+cat &gt; /etc/docker/daemon.json &lt;&lt;EOF
+{
+  <span class="hljs-string">"registry-mirrors"</span>: [<span class="hljs-string">"https://ycsvdezo.mirror.aliyuncs.com"</span>]
+}
+EOF
+</div></code></pre>
+<p>3、Harbor 安装</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># 下载离线版&lt;&lt;https://github.com/goharbor/harbor/releases&gt;&gt;</span>
+wget https://github.com/goharbor/harbor/releases/download/v1.10.2/harbor-online-installer-v1.10.2.tgz
+
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># ca文件生成配置</span>
+cat &gt; ca-config.json &lt;&lt;EOF
+{
+  <span class="hljs-string">"signing"</span>: {
+    <span class="hljs-string">"default"</span>: {
+      <span class="hljs-string">"expiry"</span>: <span class="hljs-string">"87600h"</span>
+    },
+    <span class="hljs-string">"profiles"</span>: {
+      <span class="hljs-string">"kubernetes"</span>: {
+        <span class="hljs-string">"usages"</span>: [
+            <span class="hljs-string">"signing"</span>,
+            <span class="hljs-string">"key encipherment"</span>,
+            <span class="hljs-string">"server auth"</span>,
+            <span class="hljs-string">"client auth"</span>
+        ],
+        <span class="hljs-string">"expiry"</span>: <span class="hljs-string">"876000h"</span>
+      }
+    }
+  }
+}
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 证书签名请求文件配置文件</span>
+cat &gt; ca-csr.json &lt;&lt;EOF
+{
+  <span class="hljs-string">"CN"</span>: <span class="hljs-string">"kubernetes-ca"</span>,
+  <span class="hljs-string">"key"</span>: {
+    <span class="hljs-string">"algo"</span>: <span class="hljs-string">"rsa"</span>,
+    <span class="hljs-string">"size"</span>: 2048
+  },
+  <span class="hljs-string">"names"</span>: [
+    {
+      <span class="hljs-string">"C"</span>: <span class="hljs-string">"CN"</span>,
+      <span class="hljs-string">"ST"</span>: <span class="hljs-string">"BeiJing"</span>,
+      <span class="hljs-string">"L"</span>: <span class="hljs-string">"BeiJing"</span>,
+      <span class="hljs-string">"O"</span>: <span class="hljs-string">"k8s"</span>,
+      <span class="hljs-string">"OU"</span>: <span class="hljs-string">"opsnull"</span>
+    }
+  ],
+  <span class="hljs-string">"ca"</span>: {
+    <span class="hljs-string">"expiry"</span>: <span class="hljs-string">"876000h"</span>
+ }
+}
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 生成CA证书和私钥</span>
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 配置私有证书配置文件</span>
+cat &gt; harbor-csr.json &lt;&lt;EOF
+{
+  <span class="hljs-string">"CN"</span>: <span class="hljs-string">"harbor"</span>,
+  <span class="hljs-string">"hosts"</span>: [
+    <span class="hljs-string">"127.0.0.1"</span>,
+    <span class="hljs-string">"<span class="hljs-variable">${NODE_IP}</span>"</span>
+  ],
+  <span class="hljs-string">"key"</span>: {
+    <span class="hljs-string">"algo"</span>: <span class="hljs-string">"rsa"</span>,
+    <span class="hljs-string">"size"</span>: 2048
+  },
+  <span class="hljs-string">"names"</span>: [
+    {
+      <span class="hljs-string">"C"</span>: <span class="hljs-string">"CN"</span>,
+      <span class="hljs-string">"ST"</span>: <span class="hljs-string">"BeiJing"</span>,
+      <span class="hljs-string">"L"</span>: <span class="hljs-string">"BeiJing"</span>,
+      <span class="hljs-string">"O"</span>: <span class="hljs-string">"k8s"</span>,
+      <span class="hljs-string">"OU"</span>: <span class="hljs-string">"opsnull"</span>
+    }
+  ]
+}
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 生成私有证书</span>
+cfssl gencert -ca=/etc/kubernetes/cert/ca.pem \
+  -ca-key=/etc/kubernetes/cert/ca-key.pem \
+  -config=/etc/kubernetes/cert/ca-config.json \
+  -profile=kubernetes harbor-csr.json | cfssljson -bare harbor
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 此处我们需要用到的文件一共3个，分别如下：</span>
+<span class="hljs-comment"># [root@habro1 cert]# ls -la /etc/docker/certs.d/172.16.108.100/ca.pem</span>
+-rw-r--r-- 1 root root 1322 May  2 00:21 /etc/docker/certs.d/172.16.108.100/ca.pem
+
+<span class="hljs-comment"># [root@habro1 cert]# cat /usr/local/harbor/harbor.yml |grep /data/cert/</span>
+  certificate: /data/cert/harbor.pem
+  private_key: /data/cert/harbor-key.pem
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># Docker 配置信任</span>
+[root@habro1 cert]<span class="hljs-comment"># cat /etc/docker/daemon.json</span>
+{
+  <span class="hljs-string">"registry-mirrors"</span>: [<span class="hljs-string">"https://ycsvdezo.mirror.aliyuncs.com"</span>],
+  <span class="hljs-string">"insecure-registries"</span>: [<span class="hljs-string">"https://172.16.108.100"</span>]
+}
+</div></code></pre>
+<pre class="hljs"><code><div>[root@habro1 harbor]<span class="hljs-comment"># docker-compose start</span>
+Starting <span class="hljs-built_in">log</span>         ... <span class="hljs-keyword">done</span>
+Starting registry    ... <span class="hljs-keyword">done</span>
+Starting registryctl ... <span class="hljs-keyword">done</span>
+Starting postgresql  ... <span class="hljs-keyword">done</span>
+Starting portal      ... <span class="hljs-keyword">done</span>
+Starting redis       ... <span class="hljs-keyword">done</span>
+Starting core        ... <span class="hljs-keyword">done</span>
+Starting jobservice  ... <span class="hljs-keyword">done</span>
+Starting proxy       ... <span class="hljs-keyword">done</span>
+ERROR: No containers to start
+解决：
+docker-compose up --no-start
+docker-compose start
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 外网下载image然后修改tag并上传至habro</span>
+[root@habro1 ~]<span class="hljs-comment"># kubeadm config images list</span>
+W0508 20:45:10.867651   10291 configset.go:202] WARNING: kubeadm cannot validate component configs <span class="hljs-keyword">for</span> API groups [kubelet.config.k8s.io kubeproxy.config.k8s.io]
+k8s.gcr.io/kube-apiserver:v1.18.2
+k8s.gcr.io/kube-controller-manager:v1.18.2
+k8s.gcr.io/kube-scheduler:v1.18.2
+k8s.gcr.io/kube-proxy:v1.18.2
+k8s.gcr.io/pause:3.2
+k8s.gcr.io/etcd:3.4.3-0
+k8s.gcr.io/coredns:1.6.7
+
+docker pull kubernetesui/dashboard:v2.0.0
+docker tag kubernetesui/dashboard:v2.0.0 172.16.108.100/jxbank/dashboard:v2.0.0
+docker tag kubernetesui/metrics-scraper:latest 172.16.108.100/jxbank/metrics-scraper:latest
+docker push 172.16.108.100/jxbank/dashboard:v2.0.0
+docker push 172.16.108.100/jxbank/metrics-scraper:latest
+</div></code></pre>
+<h1 id="k8s%E8%8A%82%E7%82%B9%E5%88%9D%E5%A7%8B%E5%8C%96%E9%85%8D%E7%BD%AE">k8s节点初始化配置</h1>
+<pre class="hljs"><code><div><span class="hljs-comment"># 内核配置</span>
+ cat &gt; /etc/sysctl.d/kubernetes.conf &lt;&lt;EOF
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.ipv4.ip_forward=1
+net.ipv4.tcp_tw_recycle=0
+net.ipv4.neigh.default.gc_thresh1=1024
+net.ipv4.neigh.default.gc_thresh1=2048
+net.ipv4.neigh.default.gc_thresh1=4096
+vm.swappiness=0
+vm.overcommit_memory=1
+vm.panic_on_oom=0
+fs.inotify.max_user_instances=8192
+fs.inotify.max_user_watches=1048576
+fs.file-max=52706963
+fs.nr_open=52706963
+net.ipv6.conf.all.disable_ipv6=1
+net.netfilter.nf_conntrack_max=2310720
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># Docker配置</span>
+cat &gt; /etc/docker/daemon.json &lt;&lt;EOF
+{
+       <span class="hljs-string">"registry-mirrors"</span>: [
+        <span class="hljs-string">"https://1nj0zren.mirror.aliyuncs.com"</span>,
+        <span class="hljs-string">"https://docker.mirrors.ustc.edu.cn"</span>,
+        <span class="hljs-string">"http://f1361db2.m.daocloud.io"</span>,
+        <span class="hljs-string">"https://registry.docker-cn.com"</span>
+    ],
+     <span class="hljs-string">"insecure-registries"</span> : [ <span class="hljs-string">"https://172.16.108.100"</span> ],
+     <span class="hljs-string">"exec-opts"</span>: [<span class="hljs-string">"native.cgroupdriver=systemd"</span>],
+     <span class="hljs-string">"log-driver"</span>: <span class="hljs-string">"json-file"</span>,
+    <span class="hljs-string">"log-opts"</span>: {<span class="hljs-string">"max-size"</span>: <span class="hljs-string">"100m"</span>}
+}
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment">#</span>
+ cat &gt; /etc/keepalived/keepalived.conf &lt;&lt;EOF
+global_defs {
+   script_user root
+   enable_script_security
+
+}
+
+vrrp_script chk_haproxy {
+    script <span class="hljs-string">"/bin/bash -c 'if [[ <span class="hljs-variable">$(netstat -nlp | grep 9443)</span> ]]; then exit 0; else exit 1; fi'"</span>  <span class="hljs-comment"># haproxy 检测</span>
+    interval 2  <span class="hljs-comment"># 每2秒执行一次检测</span>
+    weight 11 <span class="hljs-comment"># 权重变化</span>
+}
+
+vrrp_instance VI_1 {
+  interface ens192
+
+  state MASTER <span class="hljs-comment"># backup节点设为BACKUP</span>
+  virtual_router_id 51 <span class="hljs-comment"># id设为相同，表示是同一个虚拟路由组</span>
+  priority 100 <span class="hljs-comment">#初始权重</span>
+nopreempt <span class="hljs-comment">#可抢占</span>
+
+  unicast_peer {
+
+  }
+
+  virtual_ipaddress {
+    172.16.108.130  <span class="hljs-comment"># vip</span>
+  }
+
+  authentication {
+    auth_type PASS
+    auth_pass password
+  }
+
+  track_script {
+      chk_haproxy
+  }
+
+  notify <span class="hljs-string">"/root/notify.sh"</span>
+}
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># keepalived /root/notify.sh</span>
+ cat &gt; /root/notify.sh &lt;&lt;EOF
+<span class="hljs-meta">#!/bin/bash
+</span>
+<span class="hljs-comment"># for ANY state transition.</span>
+<span class="hljs-comment"># "notify" script is called AFTER the</span>
+<span class="hljs-comment"># notify_* script(s) and is executed</span>
+<span class="hljs-comment"># with 3 arguments provided by keepalived</span>
+<span class="hljs-comment"># (ie don't include parameters in the notify line).</span>
+<span class="hljs-comment"># arguments</span>
+<span class="hljs-comment"># $1 = "GROUP"|"INSTANCE"</span>
+<span class="hljs-comment"># $2 = name of group or instance</span>
+<span class="hljs-comment"># $3 = target state of transition</span>
+<span class="hljs-comment">#     ("MASTER"|"BACKUP"|"FAULT")</span>
+
+TYPE=<span class="hljs-variable">$1</span>
+NAME=<span class="hljs-variable">$2</span>
+STATE=<span class="hljs-variable">$3</span>
+
+<span class="hljs-keyword">case</span> <span class="hljs-variable">$STATE</span> <span class="hljs-keyword">in</span>
+    <span class="hljs-string">"MASTER"</span>) <span class="hljs-built_in">echo</span> <span class="hljs-string">"I'm the MASTER! Whup whup."</span> &gt; /proc/1/fd/1
+        <span class="hljs-built_in">exit</span> 0
+    ;;
+    <span class="hljs-string">"BACKUP"</span>) <span class="hljs-built_in">echo</span> <span class="hljs-string">"Ok, i'm just a backup, great."</span> &gt; /proc/1/fd/1
+        <span class="hljs-built_in">exit</span> 0
+    ;;
+    <span class="hljs-string">"FAULT"</span>)  <span class="hljs-built_in">echo</span> <span class="hljs-string">"Fault, what ?"</span> &gt; /proc/1/fd/1
+        <span class="hljs-built_in">exit</span> 0
+    ;;
+    *)        <span class="hljs-built_in">echo</span> <span class="hljs-string">"Unknown state"</span> &gt; /proc/1/fd/1
+        <span class="hljs-built_in">exit</span> 1
+    ;;
+<span class="hljs-keyword">esac</span>
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment">#haproxy配置</span>
+cat &gt; /etc/haproxy/haproxy.cfg &lt;&lt;EOF
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># Example configuration for a possible web application.  See the</span>
+<span class="hljs-comment"># full configuration options online.</span>
+<span class="hljs-comment">#</span>
+<span class="hljs-comment">#   http://haproxy.1wt.eu/download/1.4/doc/configuration.txt</span>
+<span class="hljs-comment">#</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># Global settings</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+global
+    <span class="hljs-comment"># to have these messages end up in /var/log/haproxy.log you will</span>
+    <span class="hljs-comment"># need to:</span>
+    <span class="hljs-comment">#</span>
+    <span class="hljs-comment"># 1) configure syslog to accept network log events.  This is done</span>
+    <span class="hljs-comment">#    by adding the '-r' option to the SYSLOGD_OPTIONS in</span>
+    <span class="hljs-comment">#    /etc/sysconfig/syslog</span>
+    <span class="hljs-comment">#</span>
+    <span class="hljs-comment"># 2) configure local2 events to go to the /var/log/haproxy.log</span>
+    <span class="hljs-comment">#   file. A line like the following can be added to</span>
+    <span class="hljs-comment">#   /etc/sysconfig/syslog</span>
+    <span class="hljs-comment">#</span>
+    <span class="hljs-comment">#    local2.*                       /var/log/haproxy.log</span>
+    <span class="hljs-comment">#</span>
+    <span class="hljs-built_in">log</span>         127.0.0.1 local2
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+
+    <span class="hljs-comment"># turn on stats unix socket</span>
+    stats socket /var/lib/haproxy/stats
+
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># common defaults that all the 'listen' and 'backend' sections will</span>
+<span class="hljs-comment"># use if not designated in their block</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+defaults
+    mode                    http
+    <span class="hljs-built_in">log</span>                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># main frontend which proxys to the backends</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+frontend  kubernetes-apiserver
+    mode tcp
+    <span class="hljs-built_in">bind</span> *:9443  <span class="hljs-comment">## 监听9443端口</span>
+    <span class="hljs-comment"># bind *:443 ssl # To be completed ....</span>
+
+    acl url_static       path_beg       -i /static /images /javascript /stylesheets
+    acl url_static       path_end       -i .jpg .gif .png .css .js
+
+    default_backend             kubernetes-apiserver
+
+
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># static backend for serving up images, stylesheets and such</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># collection haproxy statistics message</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+listen stats
+    <span class="hljs-built_in">bind</span>               *:1080
+    stats auth         admin:admin
+    stats refresh      5s
+    stats realm        HAProxy\ Statistics
+    stats uri          /admin?stats
+
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+<span class="hljs-comment"># round robin balancing between the various backends</span>
+<span class="hljs-comment">#---------------------------------------------------------------------</span>
+backend kubernetes-apiserver
+    mode        tcp  <span class="hljs-comment"># 模式tcp</span>
+    balance     roundrobin  <span class="hljs-comment"># 采用轮询的负载算法</span>
+<span class="hljs-comment"># k8s-apiservers backend  # 配置apiserver，端口6443</span>
+  server k8s-master1 172.16.108.31:6443
+  server k8s-master2 172.16.108.32:6443
+  server k8s-master3 172.16.108.33:6443
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 初始化k8s 同时包含master节点扩容选项 ---作废</span>
+kubeadm init --kubernetes-version=1.18.2  \
+--apiserver-advertise-address=172.16.108.130   \
+--image-repository 172.16.108.100/jxbank  \
+--service-cidr=10.10.0.0/16 \
+--pod-network-cidr=10.122.0.0/16 \
+--control-plane-endpoint <span class="hljs-string">'172.16.108.130:6443'</span> \
+--upload-certs
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 已如下方式进行初始化</span>
+cat &gt; kubeadm-config.yaml &lt;&lt;EOF
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: 1.18.2
+imageRepository: 172.16.108.100/jxbank
+apiServer:
+  CertSANs:
+  - 172.16.108.130
+  - 172.16.108.31
+  - 172.16.108.32
+  - 172.16.108.33
+  - k8s-master1
+  - k8s-master2
+  - k8s-master3
+controlPlaneEndpoint: <span class="hljs-string">'172.16.108.130:6443'</span>
+networking:
+    <span class="hljs-comment"># This CIDR is a Calico default. Substitute or remove for your CNI provider.</span>
+    podSubnet: <span class="hljs-string">"192.168.0.0/16"</span>
+EOF
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 扩容master节点需要同步证书</span>
+USER=root
+CONTROL_PLANE_IPS=<span class="hljs-string">"172.16.108.32 172.16.108.33"</span>
+<span class="hljs-keyword">for</span> host <span class="hljs-keyword">in</span> <span class="hljs-variable">${CONTROL_PLANE_IPS}</span>; <span class="hljs-keyword">do</span>
+    scp /etc/kubernetes/pki/ca.crt <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+    scp /etc/kubernetes/pki/ca.key <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+    scp /etc/kubernetes/pki/sa.key <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+    scp /etc/kubernetes/pki/sa.pub <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+    scp /etc/kubernetes/pki/front-proxy-ca.crt <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+    scp /etc/kubernetes/pki/front-proxy-ca.key <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+    scp /etc/kubernetes/pki/etcd/ca.crt <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:etcd-ca.crt
+    scp /etc/kubernetes/pki/etcd/ca.key <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:etcd-ca.key
+    scp /etc/kubernetes/admin.conf <span class="hljs-string">"<span class="hljs-variable">${USER}</span>"</span>@<span class="hljs-variable">$host</span>:
+<span class="hljs-keyword">done</span>
+
+<span class="hljs-comment"># on master2,3</span>
+USER=root
+mkdir -p /etc/kubernetes/pki/etcd
+mv /<span class="hljs-variable">${USER}</span>/ca.crt /etc/kubernetes/pki/
+mv /<span class="hljs-variable">${USER}</span>/ca.key /etc/kubernetes/pki/
+mv /<span class="hljs-variable">${USER}</span>/sa.pub /etc/kubernetes/pki/
+mv /<span class="hljs-variable">${USER}</span>/sa.key /etc/kubernetes/pki/
+mv /<span class="hljs-variable">${USER}</span>/front-proxy-ca.crt /etc/kubernetes/pki/
+mv /<span class="hljs-variable">${USER}</span>/front-proxy-ca.key /etc/kubernetes/pki/
+mv /<span class="hljs-variable">${USER}</span>/etcd-ca.crt /etc/kubernetes/pki/etcd/ca.crt
+mv /<span class="hljs-variable">${USER}</span>/etcd-ca.key /etc/kubernetes/pki/etcd/ca.key
+mv /<span class="hljs-variable">${USER}</span>/admin.conf /etc/kubernetes/admin.conf
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment">#配置网络插件Calico</span>
+https://docs.projectcalico.org
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment"># 默认证书有效期是1年，修改</span>
+</div></code></pre>
+
+</body>
+</html>
